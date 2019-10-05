@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 
+from budget.getting_started.urls import url_patterns as getting_started_urls
 from budget.auth.urls import url_patterns as auth_urls
 from budget.transaction_log.urls import url_patterns as transaction_log_urls
 from budget.transaction.urls import url_patterns as transaction_urls
@@ -22,3 +23,4 @@ urlpatterns += frequency_urls
 urlpatterns += transaction_urls
 urlpatterns += transaction_log_urls
 urlpatterns += auth_urls
+urlpatterns += getting_started_urls

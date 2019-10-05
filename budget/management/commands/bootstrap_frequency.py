@@ -12,7 +12,8 @@ class Command(BaseCommand):
             ('weekly', 52),
             ('bi-monthly', 26),
             ('monthly', 12),
-            ('quarterly', 4)
+            ('quarterly', 4),
+            ('bi-annually', 2)
         ]
 
         added = []
@@ -21,7 +22,7 @@ class Command(BaseCommand):
             for frequency in frequencies:
                 Frequency.objects.create(
                     title=frequency[0],
-                    number_of_paychecks=[frequency[1]]
+                    number_of_paychecks=frequency[1]
                 )
                 added.append(frequency)
         except IntegrityError:

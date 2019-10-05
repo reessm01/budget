@@ -1,6 +1,5 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -44,6 +43,10 @@ class login_client(TemplateView):
             if user is not None:
                 login(request, user)
                 destination = request.GET.get('next')
+
+                client = Client.objects.get(user=user)
+                if not client.started:
+                    return(HttpResponseRedirect(reverse('getting_started')))
 
                 if destination:
                     return(HttpResponseRedirect(destination))

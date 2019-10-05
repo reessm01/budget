@@ -1,0 +1,45 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %} 
+{% load static %}
+{% block content %}
+    <h1>${{ total }}</h1>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Item</th>
+                <th scope="col">Title</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Frequency</th>
+                <th scope="col">Last Paid</th>
+                <th scope="col">Action</th>         
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in income %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ entry.title }}</td>
+                    <td>{{ entry.amount }}</td>
+                    <td>{{ entry.frequency.title }}</td>
+                    <td>{{ entry.last_paid }}</td>
+                    <td>
+                        <a href="/income/{{ entry.id }}">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <form method="POST">
+                    {% csrf_token %}
+                    <th scope="row">New</th>
+                    {% for field in form.visible_fields %}
+                        <td>{{ field }}</td>
+                    {% endfor %}
+                    <td>
+                        <button type="submit" class="btn btn-primary mt-3">Add</button>
+                    </td>
+                </form>
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

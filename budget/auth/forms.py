@@ -1,7 +1,5 @@
 from django import forms
 
-from budget.client.models import Client
-
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=50)
