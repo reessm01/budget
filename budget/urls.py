@@ -1,27 +1,22 @@
-"""budget URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-from budget.client.urls import url_patterns as client_urls
-from budget.client.urls import url_patterns as client_urls
-    https://docs.djangoproject.com/en/2.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
 
+from budget.transaction_log.urls import url_patterns as transaction_log_urls
+from budget.transaction.urls import url_patterns as transaction_urls
+from budget.frequency.urls import url_patterns as frequency_urls
+from budget.account.urls import url_patterns as account_urls
+from budget.income.urls import url_patterns as income_urls
 from budget.client.urls import url_patterns as client_urls
+from budget.bill.urls import url_patterns as bill_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
 urlpatterns += client_urls
+urlpatterns += bill_urls
+urlpatterns += income_urls
+urlpatterns += account_urls
+urlpatterns += frequency_urls
+urlpatterns += transaction_urls
+urlpatterns += transaction_log_urls

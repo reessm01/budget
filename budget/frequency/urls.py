@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.urls import path
 
-from .models import Client
+from .models import Frequency
 
-admin.site.register(Client)
+admin.site.register(Frequency)
 
 url_patterns = []
