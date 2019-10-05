@@ -1,0 +1,52 @@
+{% load crispy_forms_tags %} {% block content %}
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="/">Budgeter</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        {% if user %}
+            <li><a class="nav-link" href="/profile/?username={{user.username}}">@{{user.username}}</a></li>
+        {% if notifications %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Notifications <span class="badge badge-light">{{ notifications|length }}</span>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for item in notifications %}
+                  {% if item.mentions %}
+                    <a class="dropdown-item" href="/tweet/?id={{item.mentions.all.0.id}}">@{{item.mentions.all.0.author.user.username}} mentioned you.</a>
+                  <div class="dropdown-divider"></div>
+                  {% endif %}
+                  <div class="d-flex dropdown-item justify-content-center"><a href="/notifications">View all...</a></div>
+                {% endfor %}
+                </div>
+            </li>
+        {% else %}
+            <a class="nav-link" href="/notifications">Notifications</a>
+        {% endif %}
+        {% endif %}
+      </li>
+    </ul>
+    {% if user %}
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+      </ul>
+    {% elif not_logged_in %}
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/login">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/register">Signup</a>
+        </li>
+      </ul>
+    {% endif %}
+  </div>
+</nav>
+{% endblock %}

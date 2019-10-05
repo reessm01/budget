@@ -1,0 +1,31 @@
+    {% load staticfiles %}
+    {% load bootstrap4 %}{# Load CSS and JavaScript #}{% bootstrap_css %}{% bootstrap_javascript jquery='full' %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <title>Budgeter</title>
+
+  </head>
+  <body>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/popper.min.js"></script>
+
+    {% include "navbar.html" %}
+    <div class="container-fluid">
+        <hr class="mt-0 mb-4" />
+        {% block content %} 
+        {% endblock %}
+    </div>
+  </body>
+</html>

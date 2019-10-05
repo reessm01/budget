@@ -1,0 +1,26 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %} 
+{% load static %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'budget/custom.css' %}">
+
+    <div class="row formWidth mx-auto mt-4">
+        {% if message %}
+            <div class="alert alert-success mt-4 ml-3 mr-3" role="alert" style="width: 100%;">
+                {{ message }}
+            </div>
+        {% endif %} 
+        <div class="col">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form | crispy }}
+                <button type="submit" class="btn btn-primary mt-3">{{ button_label }}</button>
+            </form>
+        </div>
+        {% if error_message %}
+            <div class="alert alert-danger mt-4 ml-3 mr-3" role="alert" style="width: 100%;">
+            {{ error_message }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
