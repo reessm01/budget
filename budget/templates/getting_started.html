@@ -2,20 +2,34 @@
 {% load crispy_forms_tags %} 
 {% load static %}
 {% block content %}
-    <h1>${{ total }}</h1>
+    <h1>Yearly Income: ${{ yearly }}</h1>
+    {% if total_other %}
+        <h1>Income Total: ${{ total_other }}</h1>
+    {% endif %}
+    {% if end_point == 'Bills' %}
+        <h1 style="color: red">{{ end_point }} Total: ${{ total }}</h1>
+        {% else %}
+            <h1 style="color: green">{{ end_point }} Total: ${{ total }}</h1>        
+    {% endif %}
+    {% if difference %}
+        {% if difference > 0 %}
+            <h1 style="color: green">Difference: ${{ difference }}</h1>
+        {% else %}
+            <h1 style="color: red">Difference: ${{ difference }}</h1>
+        {% endif %}
+    {% endif %}
     <table class="table table-bordered">
         <thead class="thead-dark">
             <tr>
                 <th scope="col">Item</th>
-                <th scope="col">Title</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Frequency</th>
-                <th scope="col">Last Paid</th>
-                <th scope="col">Action</th>         
+                {% for field in form.visible_fields %}
+                    <th scope="col">{{ field.label_tag }}</th>
+                {% endfor %}
+                <th scope="col">Action</th>
             </tr>
         </thead>
         <tbody>
-            {% for entry in income %}
+            {% for entry in entries %}
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
                     <td>{{ entry.title }}</td>
@@ -41,5 +55,6 @@
             </tr>
         </tbody>
     </table>
+    <a href="/gettingstarted/bills">Next</a>
 
 {% endblock %}

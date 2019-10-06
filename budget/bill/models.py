@@ -14,3 +14,6 @@ class Bill(models.Model):
     weekdays_only = models.BooleanField(default=True)
 
     last_modified = models.DateField(auto_now=True, editable=True)
+
+    def __str__(self):
+        return self.title
