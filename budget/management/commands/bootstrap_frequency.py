@@ -13,19 +13,21 @@ class Command(BaseCommand):
             ('bi-monthly', 26),
             ('monthly', 12),
             ('quarterly', 4),
-            ('bi-annually', 2)
+            ('bi-annually', 2),
+            ('annually', 1)
         ]
 
         added = []
 
-        try:
-            for frequency in frequencies:
+        for frequency in frequencies:
+            try:
                 Frequency.objects.create(
                     title=frequency[0],
                     number_of_paychecks=frequency[1]
                 )
                 added.append(frequency)
-        except IntegrityError:
-            pass
+            except IntegrityError:
+                continue
+            
 
         self.stdout.write(self.style.SUCCESS(f'Frequency table rows added: {added}'))

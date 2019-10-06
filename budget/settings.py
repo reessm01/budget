@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'nvd3',
+    'djangobower',
     'budget',
     'crispy_forms',
     'bootstrap4'
@@ -129,4 +132,14 @@ STATICFILES_DIRS = [
     # '/var/www/static/',
 ]
 
+STATICFILES_FINDERS = [
+    'djangobower.finders.BowerFinder',
+]
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
+BOWER_COMPONENTS_ROOT = 'budget/templates'
+
+BOWER_INSTALLED_APPS = (
+    'jquery#1.9',
+    'underscore',
+)

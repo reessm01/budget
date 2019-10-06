@@ -15,5 +15,14 @@ class Bill(models.Model):
 
     last_modified = models.DateField(auto_now=True, editable=True)
 
+    def get_attributes(self):
+        return [
+            'title',
+            'amount',
+            'frequency',
+            'last_paid',
+            'weekdays_only'
+        ]
+
     def __str__(self):
         return self.title

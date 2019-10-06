@@ -10,6 +10,8 @@ flake8 = "*"
 django = "*"
 django-crispy-forms = "*"
 django-bootstrap4 = "*"
+django-nvd3 = "*"
+django-bower = "*"
 
 [requires]
 python_version = "3.7"

@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+    <div class="row">
+        {% if previous_destination %}
+            <div class ="col d-flex justify-content-between">
+                <a href="{{ previous_destination }}">Back</a>
+                <a href="{{ next_destination }}">Next</a>
+            </div>
+        {% else %}
+            <div class ="col d-flex justify-content-end">
+                <a href="{{ next_destination }}">Next</a>
+            </div>
+        {% endif %}
+    </div>
+{% block content %}
+{% endblock %}

@@ -12,3 +12,11 @@ class Income(models.Model):
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     last_paid = models.DateField(null=True)
     last_modified = models.DateField(auto_now=True)
+
+    def get_attributes(self):
+        return [
+            'title',
+            'amount',
+            'frequency',
+            'last_paid'
+        ]

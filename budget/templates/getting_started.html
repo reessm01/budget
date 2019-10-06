@@ -1,23 +1,13 @@
-{% extends 'base.html' %} 
-{% load crispy_forms_tags %} 
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
+{% load budget_tags %}
+{% load humanize %}
 {% block content %}
-    <h1>Yearly Income: ${{ yearly }}</h1>
-    {% if total_other %}
-        <h1>Income Total: ${{ total_other }}</h1>
-    {% endif %}
-    {% if end_point == 'Bills' %}
-        <h1 style="color: red">{{ end_point }} Total: ${{ total }}</h1>
-        {% else %}
-            <h1 style="color: green">{{ end_point }} Total: ${{ total }}</h1>        
-    {% endif %}
-    {% if difference %}
-        {% if difference > 0 %}
-            <h1 style="color: green">Difference: ${{ difference }}</h1>
-        {% else %}
-            <h1 style="color: red">Difference: ${{ difference }}</h1>
-        {% endif %}
-    {% endif %}
+    <div class="d-flex flex-column align-items-center mb-3">
+        <h1>Getting Started:</h1>
+        <h3>{{ title }}</h3>
+    </div>
     <table class="table table-bordered">
         <thead class="thead-dark">
             <tr>
@@ -32,10 +22,13 @@
             {% for entry in entries %}
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{ entry.title }}</td>
-                    <td>{{ entry.amount }}</td>
-                    <td>{{ entry.frequency.title }}</td>
-                    <td>{{ entry.last_paid }}</td>
+                        {% for attribute in entry.get_attributes %}
+                            {% if attribute == 'amount' %}
+                                <td>${{ entry|get_obj_attr:attribute|intcomma }}</td>
+                                {% else %}
+                                <td>{{ entry|get_obj_attr:attribute }}</td>
+                            {% endif %}
+                        {% endfor %}
                     <td>
                         <a href="/income/{{ entry.id }}">Edit</a>
                     </td>
@@ -55,6 +48,5 @@
             </tr>
         </tbody>
     </table>
-    <a href="/gettingstarted/bills">Next</a>
-
+    {% include "navigators.html" %}    
 {% endblock %}

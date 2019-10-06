@@ -8,6 +8,8 @@ from budget.income.forms import IncomeForm
 from budget.frequency.models import Frequency
 from budget.bill.models import Bill
 from budget.bill.forms import BillForm
+from budget.account.models import Account
+from budget.account.forms import AccountForm
 
 
 class GettingStarted(TemplateView):
@@ -16,7 +18,8 @@ class GettingStarted(TemplateView):
     def get_form(self, end_point):
         form_options = {
             'income': IncomeForm(),
-            'bills': BillForm()
+            'bills': BillForm(),
+            'accounts': AccountForm()
         }
 
         return form_options[end_point]
@@ -24,7 +27,8 @@ class GettingStarted(TemplateView):
     def get_entries(self, end_point, client):
         entry_options = {
             'income': Income.objects.filter(owner=client),
-            'bills': Bill.objects.filter(owner=client)
+            'bills': Bill.objects.filter(owner=client),
+            'accounts': Account.objects.filter(owner=client)
         }
 
         return entry_options[end_point]
@@ -32,7 +36,17 @@ class GettingStarted(TemplateView):
     def get_next_destination(self, end_point):
         destinations = {
             'income': '/gettingstarted/bills',
-            'bills': '/gettingstarted/accounts'
+            'bills': '/gettingstarted/accounts',
+            'accounts': '/dashboard'
+        }
+
+        return destinations[end_point]
+
+    def get_prev_destination(self, end_point):
+        destinations = {
+            'income': None,
+            'bills': '/gettingstarted/income',
+            'accounts': '/gettingstarted/bills'
         }
 
         return destinations[end_point]
@@ -42,7 +56,8 @@ class GettingStarted(TemplateView):
             'income': None,
             'bills': sum(
                 [entry.amount*24/12 for entry in Income.objects.filter(owner=client)]
-                )
+                ),
+            'accounts': None
         }
 
         return other_options[end_point]
@@ -57,15 +72,21 @@ class GettingStarted(TemplateView):
                 form = self.get_form(end_point)
                 entries = self.get_entries(end_point, client)
                 yearly = sum(
-                [entry.amount*entry.frequency.number_of_paychecks for entry in Income.objects.filter(owner=client)]
+                    [entry.amount*entry.frequency.number_of_paychecks for entry in Income.objects.filter(owner=client)]
                 )
-                adjusted = yearly / 12
-                total = sum(
-                    [entry.amount*entry.frequency.number_of_paychecks/12 for entry in entries]
+                if end_point != 'accounts':
+                    total = sum(
+                        [entry.amount*entry.frequency.number_of_paychecks/12 for entry in entries]
+                        )
+                else:
+                    total = sum(
+                        [entry.amount for entry in entries if entry.account_type.title in ['checking', 'savings', 'reserve']]
                     )
+                title = end_point.title()
                 total = round(total, 2)
                 button_label = 'Next'
                 next_destination = self.get_next_destination(end_point)
+                previous_destination = self.get_prev_destination(end_point)
                 total_other = self.get_total_other(end_point, client)
                 if total_other:
                     difference = total_other - total
@@ -73,6 +94,7 @@ class GettingStarted(TemplateView):
                     difference = None
 
             return render(request, self.page, {
+                'title': title,
                 'user': user,
                 'form': form,
                 'entries': entries,
@@ -80,10 +102,10 @@ class GettingStarted(TemplateView):
                 'total': total,
                 'total_other': total_other,
                 'difference': difference,
-                'adjusted': adjusted,
                 'button_label': button_label,
                 'end_point': end_point.title(),
-                'next_destination': next_destination
+                'next_destination': next_destination,
+                'previous_destination': previous_destination
                 })
         else:
             return HttpResponseRedirect(reverse('login'))
@@ -91,7 +113,8 @@ class GettingStarted(TemplateView):
     def get_filled_form(self, end_point, data):
         form_options = {
             'income': IncomeForm(data),
-            'bills': BillForm(data)
+            'bills': BillForm(data),
+            'accounts': AccountForm(data)
         }
 
         return form_options[end_point]
@@ -114,6 +137,13 @@ class GettingStarted(TemplateView):
                 last_paid=data['last_paid'],
                 weekdays_only=data['weekdays_only']
                 )
+        elif end_point == 'accounts':
+            Account.objects.create(
+                owner=client,
+                title=data['title'],
+                amount=data['amount'],
+                account_type=data['account_type']
+            )
 
     def post(self, request, *args, **kwargs):
         user = request.user
