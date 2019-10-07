@@ -1,4 +1,4 @@
-# mentor-finder
+# simple-budget
 
 ## Installation instructions
 - clone repo `git clone {repo_link}`
