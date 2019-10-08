@@ -51,17 +51,6 @@ class GettingStarted(TemplateView):
 
         return destinations[end_point]
 
-    def get_total_other(self, end_point, client):
-        other_options = {
-            'income': None,
-            'bills': sum(
-                [entry.amount*24/12 for entry in Income.objects.filter(owner=client)]
-                ),
-            'accounts': None
-        }
-
-        return other_options[end_point]
-
     def get(self, request, *args, **kwargs):
         user = request.user
         end_point = request.path.split('/')[-1]
