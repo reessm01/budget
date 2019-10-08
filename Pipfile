@@ -10,6 +10,8 @@ flake8 = "*"
 django = "*"
 django-crispy-forms = "*"
 django-bootstrap4 = "*"
+matplotlib = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.7"
