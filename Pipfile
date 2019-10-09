@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
+autopep8 = "*"
 
 [packages]
 django = "*"
@@ -12,6 +13,7 @@ django-crispy-forms = "*"
 django-bootstrap4 = "*"
 matplotlib = "*"
 numpy = "*"
+timezone = "*"
 
 [requires]
 python_version = "3.7"

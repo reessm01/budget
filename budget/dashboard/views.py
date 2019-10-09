@@ -1,40 +1,111 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
+import os
 
 from budget.bill.models import Bill
+from budget.income.models import Income
 
 
 class Dashboard(TemplateView):
-    def get(self, request, *args, **kwargs):
-        page = 'dashboard.html'
-
-        return render(request, page, {})
-
-
-class Chart(TemplateView):
-    def get(self, request, *args, **kwargs):
+    def save_chart(self, user, query, path):
         import matplotlib
         matplotlib.use('TkAgg')
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-        user = request.user
-        bills = Bill.objects.filter(owner=user.client)
-        total = sum([bill.amount for bill in bills])
+        query = query.order_by('-amount')
+        total = sum([entry.amount for entry in query])
 
-        sizes = [bill.amount/total for bill in bills]
-        labels = [bill.title for bill in bills]
-        explode = [0 if size >= 0.05 else 0.5 for size in sizes]
+        sizes = [entry.amount/total for entry in query]
+        labels = [entry.title for entry in query]
+        explode = [0 if size >= 0.05 else 0.25 for size in sizes]
         fig1, ax1 = plt.subplots()
-        ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
-                shadow=True, startangle=90)
-        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        wedges, _ = ax1.pie(sizes, explode=explode, shadow=True)
+        # Equal aspect ratio ensures that pie is drawn as a circle.
+        ax1.axis('equal')
+        labels = [
+            '{0} - {1:1.1f} %'.format(label, size*100)
+            for label, size in zip(labels, sizes)
+        ]
+        ax1.legend(
+            wedges,
+            labels,
+            loc='center left',
+            bbox_to_anchor=(1, 0, 0.5, 1),
+            prop=dict(size=16)
+        )
+        ax1.axes.get_xaxis().set_visible(False)
+        ax1.axes.get_yaxis().set_visible(False)
 
-        jpeg = plt.savefig(
-            './budget/static/img/foo.png',
+        plt.subplots_adjust(
+            top=1,
+            bottom=0,
+            right=1,
+            left=0,
+            hspace=0,
+            wspace=0
+        )
+        plt.margins(0, 0)
+        plt.rcParams['legend.title_fontsize'] = 'large'
+
+        plt.savefig(
+            path,
             bbox_inches='tight',
             dpi=100,
-            quality=100
-            )
+            quality=100,
+            pad_inches=0.015
+        )
 
-        return HttpResponse('budget/foo.png', content_type="image/png")
+    def process_previous_filename(self, user, title, image_directory, path):
+        previous_filename = ''
+        for image in image_directory:
+            if f'{user.id}_{title}' in image:
+                previous_filename = image
+
+        if previous_filename:
+            os.remove(path + previous_filename)
+
+        return previous_filename
+
+    def create_charts(self, user):
+        path = './budget/static/img/'
+        image_directory = os.listdir(path)
+        chart_info = [
+            ('bills', Bill.objects.filter(owner=user.client)),
+            ('income', Income.objects.filter(owner=user.client))
+        ]
+
+        images = []
+
+        for chart in chart_info:
+            title, query = chart[0], chart[1]
+            last_modified = [
+                entry.last_modified
+                for entry in query.order_by('-last_modified')
+            ][0]
+            filename = f'{user.id}_{title}_{last_modified}.png'
+
+            if filename not in image_directory:
+                previous_filename = self.process_previous_filename(
+                    user, title, image_directory, path)
+                if not previous_filename:
+                    self.save_chart(user, query, path + filename)
+                    images.append('img/' + filename)
+                else:
+                    images.append('img/' + previous_filename)
+
+            else:
+                previous_filename = self.process_previous_filename(
+                    user, title, image_directory, path)
+                images.append('img/' + previous_filename)
+
+        return images
+
+    def get(self, request, *args, **kwargs):
+        page = 'dashboard.html'
+        user = request.user
+
+        file_paths = self.create_charts(user)
+        bills, incomes = file_paths[0], file_paths[1]
+
+        return render(request, page, {'bills': bills, 'incomes': incomes})
