@@ -5,6 +5,7 @@ import os
 
 from budget.bill.models import Bill
 from budget.income.models import Income
+from budget.account.models import Account
 
 
 class Dashboard(TemplateView):
@@ -118,7 +119,22 @@ class Dashboard(TemplateView):
         page = 'dashboard.html'
         user = request.user
 
-        file_paths = self.create_charts(user)
-        bills, incomes = file_paths[0], file_paths[1]
+        if not user.client.started:
+            bills_completed = Bill.objects.filter(
+                owner=user.client).exists()
+            income_completed = Income.objects.filter(
+                owner=user.client).exists()
+            accounts_completed = Account.objects.filter(
+                owner=user.client).exists()
+            criteria_met = bills_completed and income_completed and accounts_completed
+            if criteria_met:
+                user.client.started = True
+                user.client.save()
 
-        return render(request, page, {'bills': bills, 'incomes': incomes})
+        if user.client.started:
+            file_paths = self.create_charts(user)
+            bills, incomes = file_paths[0], file_paths[1]
+
+            return render(request, page, {'bills': bills, 'incomes': incomes})
+        else:
+            return HttpResponseRedirect(reverse('getting_started'))
