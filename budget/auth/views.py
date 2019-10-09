@@ -45,8 +45,11 @@ class login_client(TemplateView):
                 destination = request.GET.get('next')
 
                 client = Client.objects.get(user=user)
+                print(client.started)
                 if not client.started:
                     return(HttpResponseRedirect(reverse('getting_started')))
+                else:
+                    return(HttpResponseRedirect(reverse('dashboard')))
 
                 if destination:
                     return(HttpResponseRedirect(destination))
