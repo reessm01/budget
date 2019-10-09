@@ -213,7 +213,7 @@ class GettingStartedEdit(TemplateView):
             )
             # Bill.save()
         elif end_point == 'accounts':
-            Account.filter(id=id).update(
+            Account.objects.filter(id=id).update(
 
                 title=data['title'],
                 amount=data['amount'],
