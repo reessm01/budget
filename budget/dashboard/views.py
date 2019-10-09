@@ -52,13 +52,14 @@ class Dashboard(TemplateView):
             pad_inches=0.015
         )
 
-    def process_previous_filename(self, user, title, image_directory, path):
+    def process_previous_filename(self, user, title, image_directory, path, remove):
         previous_filename = ''
         for image in image_directory:
             if f'{user.id}_{title}' in image:
                 previous_filename = image
+                break
 
-        if previous_filename:
+        if previous_filename and remove:
             os.remove(path + previous_filename)
 
         return previous_filename
@@ -80,10 +81,10 @@ class Dashboard(TemplateView):
                 for entry in query.order_by('-last_modified')
             ][0]
             filename = f'{user.id}_{title}_{last_modified}.png'
-
+            
             if filename not in image_directory:
                 previous_filename = self.process_previous_filename(
-                    user, title, image_directory, path)
+                    user, title, image_directory, path, True)
                 if not previous_filename:
                     if title == 'bills':
                         total = sum([entry.amount for entry in query])
@@ -95,7 +96,6 @@ class Dashboard(TemplateView):
                         bills_total = sum([
                             entry.amount*entry.frequency.number_of_paychecks for entry in chart_info[0][1]
                             ])
-                        print(income_total, bills_total)
                         total = income_total + bills_total
                         sizes = [
                             entry/total
@@ -109,7 +109,7 @@ class Dashboard(TemplateView):
 
             else:
                 previous_filename = self.process_previous_filename(
-                    user, title, image_directory, path)
+                    user, title, image_directory, path, False)
                 images.append('img/' + previous_filename)
 
         return images
