@@ -8,16 +8,12 @@ from budget.income.models import Income
 
 
 class Dashboard(TemplateView):
-    def save_chart(self, user, query, path):
+    def save_chart(self, user, total, sizes, labels, path):
         import matplotlib
         matplotlib.use('TkAgg')
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-        query = query.order_by('-amount')
-        total = sum([entry.amount for entry in query])
 
-        sizes = [entry.amount/total for entry in query]
-        labels = [entry.title for entry in query]
         explode = [0 if size >= 0.05 else 0.25 for size in sizes]
         fig1, ax1 = plt.subplots()
         wedges, _ = ax1.pie(sizes, explode=explode, shadow=True)
@@ -78,7 +74,7 @@ class Dashboard(TemplateView):
         images = []
 
         for chart in chart_info:
-            title, query = chart[0], chart[1]
+            title, query = chart[0], chart[1].order_by('-amount')
             last_modified = [
                 entry.last_modified
                 for entry in query.order_by('-last_modified')
@@ -89,7 +85,24 @@ class Dashboard(TemplateView):
                 previous_filename = self.process_previous_filename(
                     user, title, image_directory, path)
                 if not previous_filename:
-                    self.save_chart(user, query, path + filename)
+                    if title == 'bills':
+                        total = sum([entry.amount for entry in query])
+                        sizes = [entry.amount/total for entry in query]
+                        labels = [entry.title for entry in query]
+                        self.save_chart(user, total, sizes, labels, path + filename)
+                    else:
+                        income_total = sum([entry.amount*entry.frequency.number_of_paychecks for entry in query])
+                        bills_total = sum([
+                            entry.amount*entry.frequency.number_of_paychecks for entry in chart_info[0][1]
+                            ])
+                        print(income_total, bills_total)
+                        total = income_total + bills_total
+                        sizes = [
+                            entry/total
+                            for entry in [income_total, bills_total]
+                            ]
+                        labels = [entry for entry in ['income', 'bills']]
+                        self.save_chart(user, total, sizes, labels, path + filename)
                     images.append('img/' + filename)
                 else:
                     images.append('img/' + previous_filename)
