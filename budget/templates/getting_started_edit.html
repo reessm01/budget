@@ -19,30 +19,30 @@
         </tr>
     </thead>
     <tbody>
-        {% for entry in entries %}
-        <tr>
-            <th scope="row">{{ forloop.counter }}</th>
-            {% for attribute in entry.get_attributes %}
-            {% if attribute == 'amount' %}
-            <td>${{ entry|get_obj_attr:attribute|intcomma }}</td>
-            {% else %}
-            <td>{{ entry|get_obj_attr:attribute }}</td>
-            {% endif %}
-            {% endfor %}
-            <td>
-                <a href="/gettingstarted/{{end_point.lower}}/{{ entry.id }}">Edit</a>
-            </td>
-        </tr>
-        {% endfor %}
+        <!-- {% for entry in entries %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                        {% for attribute in entry.get_attributes %}
+                            {% if attribute == 'amount' %}
+                                <td>${{ entry|get_obj_attr:attribute|intcomma }}</td>
+                                {% else %}
+                                <td>{{ entry|get_obj_attr:attribute }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    <td>
+                        <a href="/gettingstarted/{{end_point}}/{{ entry.id }}">Edit</a>
+                    </td> 
+                </tr>
+            {% endfor %} -->
         <tr>
             <form method="POST">
                 {% csrf_token %}
-                <th scope="row">New</th>
+                <th scope="row">Edit</th>
                 {% for field in form.visible_fields %}
                 <td>{{ field }}</td>
                 {% endfor %}
                 <td>
-                    <button type="submit" class="btn btn-primary mt-3">Add</button>
+                    <button type="submit" class="btn btn-primary mt-3">Commit</button>
                 </td>
             </form>
         </tr>

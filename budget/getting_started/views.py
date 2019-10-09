@@ -74,7 +74,7 @@ class GettingStarted(TemplateView):
                 'end_point': end_point.title(),
                 'next_destination': next_destination,
                 'previous_destination': previous_destination
-                })
+            })
         else:
             return HttpResponseRedirect(reverse('login'))
 
@@ -95,7 +95,7 @@ class GettingStarted(TemplateView):
                 amount=data['amount'],
                 frequency=data['frequency'],
                 last_paid=data['last_paid']
-                )
+            )
         elif end_point == 'bills':
             Bill.objects.create(
                 owner=client,
@@ -104,7 +104,7 @@ class GettingStarted(TemplateView):
                 frequency=data['frequency'],
                 last_paid=data['last_paid'],
                 weekdays_only=data['weekdays_only']
-                )
+            )
         elif end_point == 'accounts':
             Account.objects.create(
                 owner=client,
@@ -127,3 +127,112 @@ class GettingStarted(TemplateView):
                 self.create_entry(data, client, end_point)
 
                 return HttpResponseRedirect(request.path)
+
+
+class GettingStartedEdit(TemplateView):
+    page = 'getting_started_edit.html'
+
+    def get_form(self, end_point, initial_data):
+        print(initial_data)
+        if end_point == 'income':
+            return IncomeForm(initial=initial_data)
+        elif end_point == 'bills':
+            return BillForm(initial=initial_data)
+        elif end_point == 'accounts':
+            return AccountForm(initial=initial_data)
+        # form_options = {
+        #     'income': IncomeForm(initial=initial_data),
+        #     'bills': BillForm(initial=initial_data),
+        #     'accounts': AccountForm(initial=initial_data)
+        # }
+        # return form_options[end_point]
+
+    def get(self, request, id, *args, **kwargs):
+        user = request.user
+        end_point = request.path.split('/')[-2]
+
+        if user:
+            client = Client.objects.get(user=user)
+            if not client.started:
+                initial_data = self.get_model(end_point, id)
+                # print(initial_data)
+                form = self.get_form(end_point, initial_data.values()[0])
+                # entries = self.get_entries(end_point, client)
+                title = end_point.title()
+                # button_label = 'Next'
+                # next_destination = self.get_next_destination(end_point)
+                # previous_destination = self.get_prev_destination(end_point)
+
+            return render(request, self.page, {
+                'title': title,
+                'user': user,
+                'form': form,
+                # 'entries': entries,
+                # 'button_label': button_label,
+                'end_point': end_point.title(),
+                # 'next_destination': next_destination,
+                # 'previous_destination': previous_destination
+            })
+        else:
+            return HttpResponseRedirect(reverse('login'))
+
+    def post(self, request, id, *args, **kwargs):
+        user = request.user
+
+        if user:
+            end_point = request.path.split('/')[-2]
+            print(end_point, request.POST)
+            form = self.get_filled_form(end_point, request.POST)
+
+            if form.is_valid():
+                client = Client.objects.get(user=user)
+                data = form.cleaned_data
+
+                self.change_info(data, client, end_point, id)
+                redirect_path = request.path.split('/')[:-1]
+                return HttpResponseRedirect("/".join(redirect_path))
+
+    def change_info(self, data, client, end_point, id):
+        if end_point == 'income':
+            Income.objects.filter(id=id).update(
+
+                title=data['title'],
+                amount=data['amount'],
+                frequency=data['frequency'],
+                last_paid=data['last_paid']
+            )
+            # Income.save()
+        elif end_point == 'bills':
+            Bill.objects.filter(id=id).update(
+
+                title=data['title'],
+                amount=data['amount'],
+                frequency=data['frequency'],
+                last_paid=data['last_paid'],
+                weekdays_only=data['weekdays_only']
+            )
+            # Bill.save()
+        elif end_point == 'accounts':
+            Account.filter(id=id).update(
+
+                title=data['title'],
+                amount=data['amount'],
+                account_type=data['account_type']
+            )
+            # Account.save()
+
+    def get_model(self, end_point, id):
+        entry_options = {
+            'income': Income.objects.filter(id=id),
+            'bills': Bill.objects.filter(id=id),
+            'accounts': Account.objects.filter(id=id)
+        }
+        return entry_options[end_point]
+
+    def get_filled_form(self, end_point, data):
+        form_options = {
+            'income': IncomeForm(data),
+            'bills': BillForm(data),
+            'accounts': AccountForm(data)
+        }
+        return form_options[end_point]
