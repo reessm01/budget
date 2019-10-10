@@ -10,6 +10,8 @@ from budget.bill.models import Bill
 from budget.bill.forms import BillForm
 from budget.account.models import Account
 from budget.account.forms import AccountForm
+from budget.frequency.models import Frequency
+from budget.account.models import AccountType
 
 
 class GettingStarted(TemplateView):
@@ -133,19 +135,28 @@ class GettingStartedEdit(TemplateView):
     page = 'getting_started_edit.html'
 
     def get_form(self, end_point, initial_data):
-        print(initial_data)
+
         if end_point == 'income':
+            initial_choice = initial_data['frequency_id']
+            new_choice = {
+                'frequency': Frequency.objects.filter(pk=initial_choice)[0]}
+            initial_data.update(new_choice)
+
             return IncomeForm(initial=initial_data)
         elif end_point == 'bills':
+            initial_choice = initial_data['frequency_id']
+            new_choice = {
+                'frequency': Frequency.objects.filter(pk=initial_choice)[0]}
+            initial_data.update(new_choice)
             return BillForm(initial=initial_data)
         elif end_point == 'accounts':
+
+            initial_choice = initial_data['account_type_id']
+            new_choice = {
+                'account_type': AccountType.objects.filter(pk=initial_choice)[0]}
+            initial_data.update(new_choice)
+
             return AccountForm(initial=initial_data)
-        # form_options = {
-        #     'income': IncomeForm(initial=initial_data),
-        #     'bills': BillForm(initial=initial_data),
-        #     'accounts': AccountForm(initial=initial_data)
-        # }
-        # return form_options[end_point]
 
     def get(self, request, id, *args, **kwargs):
         user = request.user
@@ -155,23 +166,17 @@ class GettingStartedEdit(TemplateView):
             client = Client.objects.get(user=user)
             if not client.started:
                 initial_data = self.get_model(end_point, id)
-                # print(initial_data)
+
                 form = self.get_form(end_point, initial_data.values()[0])
-                # entries = self.get_entries(end_point, client)
+
                 title = end_point.title()
-                # button_label = 'Next'
-                # next_destination = self.get_next_destination(end_point)
-                # previous_destination = self.get_prev_destination(end_point)
 
             return render(request, self.page, {
                 'title': title,
                 'user': user,
                 'form': form,
-                # 'entries': entries,
-                # 'button_label': button_label,
                 'end_point': end_point.title(),
-                # 'next_destination': next_destination,
-                # 'previous_destination': previous_destination
+
             })
         else:
             return HttpResponseRedirect(reverse('login'))
@@ -181,7 +186,7 @@ class GettingStartedEdit(TemplateView):
 
         if user:
             end_point = request.path.split('/')[-2]
-            print(end_point, request.POST)
+
             form = self.get_filled_form(end_point, request.POST)
 
             if form.is_valid():
@@ -201,7 +206,7 @@ class GettingStartedEdit(TemplateView):
                 frequency=data['frequency'],
                 last_paid=data['last_paid']
             )
-            # Income.save()
+
         elif end_point == 'bills':
             Bill.objects.filter(id=id).update(
 
@@ -211,7 +216,7 @@ class GettingStartedEdit(TemplateView):
                 last_paid=data['last_paid'],
                 weekdays_only=data['weekdays_only']
             )
-            # Bill.save()
+
         elif end_point == 'accounts':
             Account.objects.filter(id=id).update(
 
@@ -219,7 +224,6 @@ class GettingStartedEdit(TemplateView):
                 amount=data['amount'],
                 account_type=data['account_type']
             )
-            # Account.save()
 
     def get_model(self, end_point, id):
         entry_options = {
