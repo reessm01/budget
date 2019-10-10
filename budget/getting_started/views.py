@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
+from datetime import datetime, timedelta, date
 
 from budget.client.models import Client
 from budget.income.models import Income
@@ -17,6 +18,14 @@ from budget.check_in.models import CheckIn
 
 
 class InitCheckinPreferences(TemplateView):
+    def account_balance_projection(self, bills, next_date, account):
+        balance = account.amount
+
+        for bill in bills:
+            pass
+
+        return balance
+
     def get(self, request, *args, **kwargs):
         user = request.user
         page = 'init_check_preferences.html'
@@ -43,14 +52,36 @@ class InitCheckinPreferences(TemplateView):
                 preferences = CheckInPreferences.objects.get(owner=user.client)
                 preferences.frequency = data['frequency']
                 preferences.account = data['account']
+                preferences.income = data['income']
                 preferences.save()
+
             except ObjectDoesNotExist:
                 preferences = CheckInPreferences.objects.create(
                     owner=user.client,
                     frequency=data['frequency'],
-                    account=data['account']
+                    account=data['account'],
+                    income=data['income']
                 )
+
             finally:
+                CheckIn.objects.filter(owner=user.client).delete()
+                time_delta = timedelta(
+                    days=(365 // preferences.frequency.number_of_paychecks)
+                    )
+                next_date = preferences.income.last_paid + time_delta
+                bills = Bill.objects.filter(owner=user.client)
+                projected_balance = self.account_balance_projection(
+                    bills, next_date, preferences.account
+                )
+
+                for _ in preferences.frequency.number_of_paychecks:
+                    CheckIn.objects.create(
+                        user=user.client,
+                        date=next_date,
+                        projected_balance=projected_balance
+                    )
+
+                    next_date += time_delta
                 pass
             return HttpResponseRedirect(reverse('dashboard'))
         else:

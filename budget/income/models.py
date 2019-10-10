@@ -20,3 +20,6 @@ class Income(models.Model):
             'frequency',
             'last_paid'
         ]
+
+    def __str__(self):
+        return self.title

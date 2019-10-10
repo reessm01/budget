@@ -16,6 +16,10 @@ class CheckInPreferencesForm(forms.ModelForm):
                 queryset=Account.objects.filter(owner=client),
                 widget=forms.Select()
             )
+            self.income = forms.ModelChoiceField(
+                queryset=Income.objects.filter(owner=client),
+                width=forms.Select()
+            )
 
     frequency = forms.ModelChoiceField(
         queryset=Frequency.objects.all(),
@@ -27,4 +31,5 @@ class CheckInPreferencesForm(forms.ModelForm):
         fields = [
             'frequency',
             'account',
+            'income'
         ]
