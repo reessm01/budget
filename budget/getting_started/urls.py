@@ -5,6 +5,11 @@ from .views import *
 
 url_patterns = [
     path(
+        'gettingstarted/checkin',
+        InitCheckinPreferences.as_view(),
+        name='check_in'
+    ),
+    path(
         'gettingstarted/income',
         GettingStarted.as_view(),
         name='getting_started'

@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
+from django.core.exceptions import ObjectDoesNotExist
 
 from budget.client.models import Client
 from budget.income.models import Income
@@ -10,6 +11,50 @@ from budget.bill.models import Bill
 from budget.bill.forms import BillForm
 from budget.account.models import Account
 from budget.account.forms import AccountForm
+from budget.check_in_preferences.models import CheckInPreferences
+from budget.check_in_preferences.forms import CheckInPreferencesForm
+from budget.check_in.models import CheckIn
+
+
+class InitCheckinPreferences(TemplateView):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        page = 'init_check_preferences.html'
+        form = CheckInPreferencesForm({'client': user.client})
+
+        return render(request, page, {
+            'title': 'Check-in Configuration',
+            'user': user,
+            'form': form,
+            'guidance': 'Please indicate the frequency you would like to check in. Check ins are automated events that runs a comparison between your projected account and actual account balances.',
+            'button_label': 'Submit',
+            'next_destination': '/dashboard',
+            'previous_destination': '/gettingstarted/accounts'
+        })
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        form = CheckInPreferencesForm(request.POST, {'client': user.client})
+
+        if form.is_valid():
+            data = form.cleaned_data
+
+            try:
+                preferences = CheckInPreferences.objects.get(owner=user.client)
+                preferences.frequency = data['frequency']
+                preferences.account = data['account']
+                preferences.save()
+            except ObjectDoesNotExist:
+                preferences = CheckInPreferences.objects.create(
+                    owner=user.client,
+                    frequency=data['frequency'],
+                    account=data['account']
+                )
+            finally:
+                pass
+            return HttpResponseRedirect(reverse('dashboard'))
+        else:
+            HttpResponseRedirect(reverse('check_in'))
 
 
 class GettingStarted(TemplateView):
@@ -37,7 +82,7 @@ class GettingStarted(TemplateView):
         destinations = {
             'income': '/gettingstarted/bills',
             'bills': '/gettingstarted/accounts',
-            'accounts': '/dashboard'
+            'accounts': '/gettingstarted/checkin'
         }
 
         return destinations[end_point]
@@ -57,7 +102,7 @@ class GettingStarted(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if not client.started:
+            if client.started:
                 form = self.get_form(end_point)
                 entries = self.get_entries(end_point, client)
                 title = end_point.title()
@@ -65,16 +110,16 @@ class GettingStarted(TemplateView):
                 next_destination = self.get_next_destination(end_point)
                 previous_destination = self.get_prev_destination(end_point)
 
-            return render(request, self.page, {
-                'title': title,
-                'user': user,
-                'form': form,
-                'entries': entries,
-                'button_label': button_label,
-                'end_point': end_point.title(),
-                'next_destination': next_destination,
-                'previous_destination': previous_destination
-            })
+                return render(request, self.page, {
+                    'title': title,
+                    'user': user,
+                    'form': form,
+                    'entries': entries,
+                    'button_label': button_label,
+                    'end_point': end_point.title(),
+                    'next_destination': next_destination,
+                    'previous_destination': previous_destination
+                })
         else:
             return HttpResponseRedirect(reverse('login'))
 
