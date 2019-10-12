@@ -1,4 +1,6 @@
 from django.db import models
+from datetime import datetime, timedelta, date
+from calendar import monthrange
 
 from budget.client.models import Client
 from budget.frequency.models import Frequency
@@ -14,6 +16,22 @@ class Bill(models.Model):
     weekdays_only = models.BooleanField(default=True)
 
     last_modified = models.DateField(auto_now=True, editable=True)
+
+    def next_due(self, multiplier):
+        if self.title == 'monthly':
+            delta = timedelta(
+                monthrange(
+                    self.last_paid.year, self.last_paid.month)[1]
+                    )
+        else:
+            delta = timedelta(days=365 // self.frequency.number_of_paychecks)
+
+        next_due = self.last_paid + delta * multiplier
+
+        while next_due.weekday() > 5:
+            next_due -= timedelta(days=1)
+        
+        return next_due
 
     def get_attributes(self):
         return [

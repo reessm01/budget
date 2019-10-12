@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime, timedelta, date
+from calendar import monthrange
+from decimal import Decimal
 
 from budget.client.models import Client
 from budget.income.models import Income
@@ -16,15 +18,59 @@ from budget.check_in_preferences.models import CheckInPreferences
 from budget.check_in_preferences.forms import CheckInPreferencesForm
 from budget.check_in.models import CheckIn
 
+import pprint
+
 
 class InitCheckinPreferences(TemplateView):
-    def account_balance_projection(self, bills, next_date, account):
-        balance = account.amount
+    def get_reserve_ratio(self, bill, next_check_in, time_delta, sequence):
+        # Bill next due does not require being evaluated every time
+        bill_next_due = bill.next_due(sequence)
+        total_days = (bill_next_due - bill.last_paid).days
+        days_since = (next_check_in - bill.last_paid).days
+        days_remaining = total_days - days_since
+
+        while days_since < 0:
+            bill.last_paid = bill.next_due(sequence)
+            bill.save()
+            days_since = (next_check_in - bill.last_paid).days
+
+        if days_remaining <= time_delta.days:
+            days_since = total_days
+
+        return Decimal(days_since / total_days)
+
+    def account_balance_projection(self, bills, balance, next_checkin_date, account, time_delta, sequence, income):
+        reserve = Decimal(0.00)
+        outgoing = Decimal(0.00)
 
         for bill in bills:
-            pass
+            reserve_ratio = self.get_reserve_ratio(
+                bill, next_checkin_date, time_delta, sequence
+            )
 
-        return balance
+            if reserve_ratio < 1:
+                reserve += bill.amount * reserve_ratio
+            else:
+                outgoing += bill.amount * reserve_ratio
+
+        for entry in income:
+            if sequence != 1:
+                if entry.next_paid(sequence - 1) < entry.next_paid(sequence) <= next_checkin_date:
+                    balance += entry.amount
+            elif entry.last_paid < entry.next_paid(sequence) <= next_checkin_date:
+                balance += entry.amount
+
+        balance -= outgoing
+
+        transaction = {
+            'date': next_checkin_date,
+            'projected_balance': balance,
+            'futures_balance': reserve,
+            'outgoing_balance': outgoing,
+            'ratio': reserve_ratio
+        }
+
+        return transaction
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -64,25 +110,29 @@ class InitCheckinPreferences(TemplateView):
                 )
 
             finally:
-                CheckIn.objects.filter(owner=user.client).delete()
+                CheckIn.objects.filter(user=user.client).delete()
                 time_delta = timedelta(
-                    days=(365 // preferences.frequency.number_of_paychecks)
-                    )
+                    (365 // preferences.frequency.number_of_paychecks)
+                )
                 next_date = preferences.income.last_paid + time_delta
                 bills = Bill.objects.filter(owner=user.client)
-                projected_balance = self.account_balance_projection(
-                    bills, next_date, preferences.account
-                )
-
-                for _ in preferences.frequency.number_of_paychecks:
-                    CheckIn.objects.create(
-                        user=user.client,
-                        date=next_date,
-                        projected_balance=projected_balance
-                    )
-
-                    next_date += time_delta
-                pass
+                income = Income.objects.filter(owner=user.client)
+                check_ins = []
+                for sequence in range(
+                        1, preferences.frequency.number_of_paychecks + 1
+                        ):
+                    if sequence != 1:
+                        next_date = check_ins[-1]['date'] + time_delta
+                        account_balance = check_ins[-1]['projected_balance']
+                    else:
+                        next_date = next_date + time_delta * (sequence - 1)
+                        account_balance = preferences.account.amount
+                    check_ins.append(self.account_balance_projection(
+                        bills, account_balance, next_date,
+                        preferences.account, time_delta, sequence, income
+                        ))
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(check_ins)
             return HttpResponseRedirect(reverse('dashboard'))
         else:
             HttpResponseRedirect(reverse('check_in'))
