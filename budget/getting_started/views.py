@@ -22,22 +22,26 @@ import pprint
 
 
 class InitCheckinPreferences(TemplateView):
+
     def get_reserve_ratio(self, bill, next_check_in, time_delta, sequence):
-        # Bill next due does not require being evaluated every time
-        bill_next_due = bill.next_due(sequence)
-        total_days = (bill_next_due - bill.last_paid).days
-        days_since = (next_check_in - bill.last_paid).days
-        days_remaining = total_days - days_since
+        bill_next_due = bill.next_due()
+        date_difference = bill_next_due - next_check_in
+        while date_difference.days < 0:
+            bill_next_due = bill.next_due(bill_next_due)
+            date_difference = bill_next_due - next_check_in
 
-        while days_since < 0:
-            bill.last_paid = bill.next_due(sequence)
-            bill.save()
-            days_since = (next_check_in - bill.last_paid).days
+        ratio = Decimal(0.00)
+        while next_check_in <= bill_next_due < next_check_in + time_delta:
+            ratio += Decimal(1.00)
+            bill_next_due = bill.next_due(bill_next_due)
+        offset = Decimal(0.00)
+        if next_check_in + time_delta <= bill_next_due < next_check_in + time_delta*2:
+            diff = (bill_next_due - next_check_in + time_delta).days
+            if bill.days_between() - diff > 0:
+                offset = Decimal(
+                    (bill.days_between() - diff)/bill.days_between())
 
-        if days_remaining <= time_delta.days:
-            days_since = total_days
-
-        return Decimal(days_since / total_days)
+        return (ratio, offset)
 
     def account_balance_projection(self, bills, balance, next_checkin_date, account, time_delta, sequence, income):
         reserve = Decimal(0.00)
@@ -48,17 +52,18 @@ class InitCheckinPreferences(TemplateView):
                 bill, next_checkin_date, time_delta, sequence
             )
 
-            if reserve_ratio < 1:
-                reserve += bill.amount * reserve_ratio
-            else:
-                outgoing += bill.amount * reserve_ratio
+            outgoing += bill.amount * reserve_ratio[0]
+            reserve += bill.amount * reserve_ratio[1]
 
         for entry in income:
-            if sequence != 1:
-                if entry.next_paid(sequence - 1) < entry.next_paid(sequence) <= next_checkin_date:
-                    balance += entry.amount
-            elif entry.last_paid < entry.next_paid(sequence) <= next_checkin_date:
+            next_paid = entry.next_paid()
+            date_difference = entry.next_paid() - next_checkin_date
+            while date_difference.days < 0:
+                next_paid = entry.next_paid(next_paid)
+                date_difference = next_paid - next_checkin_date
+            while next_checkin_date <= next_paid < next_checkin_date + time_delta:
                 balance += entry.amount
+                next_paid = entry.next_paid(next_paid)
 
         balance -= outgoing
 
@@ -66,8 +71,7 @@ class InitCheckinPreferences(TemplateView):
             'date': next_checkin_date,
             'projected_balance': balance,
             'futures_balance': reserve,
-            'outgoing_balance': outgoing,
-            'ratio': reserve_ratio
+            'outgoing_balance': outgoing
         }
 
         return transaction
@@ -86,6 +90,18 @@ class InitCheckinPreferences(TemplateView):
             'next_destination': '/dashboard',
             'previous_destination': '/gettingstarted/accounts'
         })
+
+    def get_time_delta(self, preferences, last_paid):
+        if preferences.frequency.title == 'monthly':
+            time_delta = timedelta(
+                monthrange(
+                    last_paid.year, last_paid.month)[1]
+            )
+        else:
+            time_delta = timedelta(
+                days=365 // preferences.frequency.number_of_paychecks)
+
+        return time_delta
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -111,28 +127,37 @@ class InitCheckinPreferences(TemplateView):
 
             finally:
                 CheckIn.objects.filter(user=user.client).delete()
-                time_delta = timedelta(
-                    (365 // preferences.frequency.number_of_paychecks)
-                )
+                time_delta = self.get_time_delta(
+                    preferences, preferences.income.last_paid)
+
                 next_date = preferences.income.last_paid + time_delta
                 bills = Bill.objects.filter(owner=user.client)
                 income = Income.objects.filter(owner=user.client)
                 check_ins = []
                 for sequence in range(
                         1, preferences.frequency.number_of_paychecks + 1
-                        ):
+                ):
                     if sequence != 1:
+                        time_delta = self.get_time_delta(
+                            preferences, check_ins[-1]['date'])
                         next_date = check_ins[-1]['date'] + time_delta
                         account_balance = check_ins[-1]['projected_balance']
                     else:
-                        next_date = next_date + time_delta * (sequence - 1)
                         account_balance = preferences.account.amount
                     check_ins.append(self.account_balance_projection(
                         bills, account_balance, next_date,
                         preferences.account, time_delta, sequence, income
-                        ))
-            pp = pprint.PrettyPrinter(indent=4)
-            pp.pprint(check_ins)
+                    ))
+
+                for check_in in check_ins:
+                    CheckIn.objects.create(
+                        user=user.client,
+                        date=check_in['date'],
+                        projected_balance=check_in['projected_balance'],
+                        futures_balance=check_in['futures_balance'],
+                        outgoing_balance=check_in['outgoing_balance']
+                    )
+
             return HttpResponseRedirect(reverse('dashboard'))
         else:
             HttpResponseRedirect(reverse('check_in'))
@@ -279,7 +304,7 @@ class GettingStartedEdit(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if not client.started:
+            if client.started:
                 initial_data = self.get_model(end_point, id)
                 # print(initial_data)
                 form = self.get_form(end_point, initial_data.values()[0])

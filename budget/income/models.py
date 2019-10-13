@@ -15,7 +15,7 @@ class Income(models.Model):
     last_paid = models.DateField(null=True)
     last_modified = models.DateField(auto_now=True)
 
-    def next_paid(self, multiplier):
+    def next_paid(self, _date=None):
         if self.title == 'monthly':
             delta = timedelta(
                 monthrange(
@@ -23,8 +23,12 @@ class Income(models.Model):
                     )
         else:
             delta = timedelta(days=365 // self.frequency.number_of_paychecks)
+        if _date == None:
+            next_due = self.last_paid + delta
+        else:
+            next_due = _date + delta
 
-        return self.last_paid + delta * multiplier
+        return next_due
 
     def get_attributes(self):
         return [
