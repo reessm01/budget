@@ -34,6 +34,7 @@ class InitCheckinPreferences(TemplateView):
         while next_check_in <= bill_next_due < next_check_in + time_delta:
             ratio += Decimal(1.00)
             bill_next_due = bill.next_due(bill_next_due)
+
         offset = Decimal(0.00)
         if next_check_in + time_delta <= bill_next_due < next_check_in + time_delta*2:
             diff = (bill_next_due - next_check_in + time_delta).days
@@ -64,8 +65,6 @@ class InitCheckinPreferences(TemplateView):
             while next_checkin_date <= next_paid < next_checkin_date + time_delta:
                 balance += entry.amount
                 next_paid = entry.next_paid(next_paid)
-
-        balance -= outgoing
 
         transaction = {
             'date': next_checkin_date,

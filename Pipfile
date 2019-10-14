@@ -13,6 +13,7 @@ django-crispy-forms = "*"
 django-bootstrap4 = "*"
 matplotlib = "*"
 numpy = "*"
+django-mathfilters = "*"
 
 [requires]
 python_version = "3.7"

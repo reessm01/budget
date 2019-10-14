@@ -6,6 +6,7 @@ import os
 from budget.bill.models import Bill
 from budget.income.models import Income
 from budget.account.models import Account
+from budget.check_in.models import CheckIn
 
 
 class Dashboard(TemplateView):
@@ -115,6 +116,15 @@ class Dashboard(TemplateView):
 
         return images
 
+    def get_checkin_info(self, client):
+        check_ins = CheckIn.objects.filter(user=client).order_by('-date')
+        selected = ''
+        for check_in in check_ins:
+            if check_in.actual_balance == 0:
+                selected = check_in
+
+        return selected
+
     def get(self, request, *args, **kwargs):
         page = 'dashboard.html'
         user = request.user
@@ -126,7 +136,11 @@ class Dashboard(TemplateView):
                 owner=user.client).exists()
             accounts_completed = Account.objects.filter(
                 owner=user.client).exists()
-            criteria_met = bills_completed and income_completed and accounts_completed
+            checkins_exist = Checkin.objects.filter(
+                user=user.client).exists()
+            criteria_set_1 = bills_completed and income_completed
+            critieria_set_2 = accounts_completed and checkins_exist
+            criteria_met = criteria_set_1 and critieria_set_2
             if criteria_met:
                 user.client.started = True
                 user.client.save()
@@ -134,7 +148,19 @@ class Dashboard(TemplateView):
         if user.client.started:
             file_paths = self.create_charts(user)
             bills, incomes = file_paths[0], file_paths[1]
-
-            return render(request, page, {'bills': bills, 'incomes': incomes})
+            check_in = self.get_checkin_info(user.client)
+            total_outbound = check_in.futures_balance + check_in.outgoing_balance
+            outbound = total_outbound / (check_in.projected_balance)*100
+            remaining = 100-outbound
+            print(outbound)
+            return render(request, page, {
+                'bills': bills,
+                'incomes': incomes,
+                'outbound': outbound,
+                'remaining_p': remaining,
+                'check_in': check_in,
+                'total_outbound': total_outbound,
+                'remaining_cash': check_in.projected_balance - total_outbound
+            })
         else:
             return HttpResponseRedirect(reverse('getting_started'))
