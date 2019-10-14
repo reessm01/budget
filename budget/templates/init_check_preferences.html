@@ -1,0 +1,18 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %} 
+{% load static %}
+{% block content %}
+    <div class="pl-5 ml-5 pr-5 mr-5">
+        <div class="d-flex flex-column align-items-center">
+            <h1>Getting Started:</h1>
+            <h3>{{ title }}</h3>
+            <p>{{ guidance }}</p>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <button type="submit" class="btn btn-primary mt-3">{{ button_label }}</button>
+        </form>
+        {% include "navigators.html" %}
+    </div>
+{% endblock %}

@@ -12,7 +12,11 @@ class AccountType(models.Model):
 
 class Account(models.Model):
     owner = models.ForeignKey(Client, on_delete=models.CASCADE)
-    account_type = models.ForeignKey(AccountType, on_delete=models.CASCADE, null=True)
+    account_type = models.ForeignKey(
+        AccountType,
+        on_delete=models.CASCADE,
+        null=True
+        )
 
     title = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
@@ -24,7 +28,6 @@ class Account(models.Model):
             'title',
             'account_type',
             'amount',
-            
         ]
 
     def __str__(self):
