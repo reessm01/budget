@@ -4,15 +4,16 @@
 {% block content %}
 <div class="mb-3">
     <div class="card p-4">
-    <h4 class="card-title">Next Check-In: {{check_in.date}}</h4>
+    <h5 class="card-title">Money Bar</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Displayed Check-In: {{check_in.date}}</h6>
     <div class="row flex-row justify-content-between">
         <div class="d-flex pl-3 mb-1">
             <div class="d-flex align-items-center">
                 <span class="badge badge-warning mr-1" style="width: 15px; height:15px;"> </span>
-                <h5 class="mr-3" style="margin: auto;">Outbound: ${{total_outbound|intcomma}}</h5>
+                <h6 class="mr-3" style="margin: auto;">Outbound: ${{total_outbound|intcomma}}</h6>
             <div class="d-flex align-items-center">
                 <span class="badge badge-primary mr-1" style="width: 15px; height:15px;"> </span>
-                <h5 style="margin: auto;">Remaining: ${{remaining_cash|intcomma}}</h5>
+                <h6 style="margin: auto;">Remaining: ${{remaining_cash|intcomma}}</h6>
             </div>
             </div>
         </div>
