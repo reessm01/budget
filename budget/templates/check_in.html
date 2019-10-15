@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Check-In</h5>
+        <h6 class="card-subtitle mb-2 {{subtitle_text_style}}">{{check_in.date}}</h6>
+        {% include "check_in_info.html" %}
+    </div>
+</div>
+
+<style>
+
+</style>
+{% endblock %}

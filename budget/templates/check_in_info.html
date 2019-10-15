@@ -1,0 +1,80 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item bg-secondary ">
+            <div class="text-center text-white"><h6>Overview</h6></div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-6"><b>Projected Balance:</b></div>
+                <div class="col-6">${{check_in.projected_balance|intcomma}}</div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-6"><b>Actual Balance:</b></div>
+                <div class="d-flex col-6">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% for field in form.visible_fields %}
+                            {% if field.name != "checkin_id" %}
+                            {{ field }}
+                            {% else %}
+                            {{ field.as_hidden }}
+                            {% endif %}
+                        {% endfor %}
+                        {% if check_in.date > today or check_in.actual_balance != 0.00 %}
+                            <button disabled type="submit" class="btn btn-primary mt-3">Update</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-primary mt-3">Update</button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-6"><b>Difference:</b></div>
+                <div class="col-6">${{check_in.difference|intcomma}}</div>
+            </div>
+        </li>
+
+        <li class="list-group-item bg-secondary">
+            <div class="text-center text-white"><h6>Details</h6></div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-6"><b>Extra:</b></div>
+                <div class="col-6">${{remaining_cash|intcomma}}</div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-6"><b>Outbound:</b></div>
+                <div class="col-6">${{check_in.outgoing_balance|intcomma}}</div>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-6"><b>Put Aside:</b></div>
+                <div class="col-6">${{check_in.futures_balance|intcomma}}</div>
+            </div>
+        </li>
+
+        
+    </ul>
+    <style>
+        #id_actual_balance {
+            width:125px;
+        }
+    </style>
+{% endblock %}

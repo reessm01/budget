@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block content %}
+<div class="card p-3">
+    <h5 class="card-title">Charts</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Visual representations of the budget</h6>
     <div
         id="carouselExampleControls"
         class="carousel slide carousel-fade"
@@ -15,7 +18,7 @@
 
         <div class="carousel-inner">
             <div class="carousel-item active text-center">
-                <h1>Bill Ratios</h1>
+                <h5>Bill Ratios</h5>
                 <img
                     src="{% static bills %}"
                     class="d-block mx-auto"
@@ -24,7 +27,7 @@
                     >
             </div>
             <div class="carousel-item text-center">
-                <h1>Income vs Bills Ratio</h1>
+                <h5>Income vs Bills Ratio</h5>
                 <img
                     src="{% static incomes %}"
                     class="d-block mx-auto"
@@ -45,6 +48,7 @@
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="sr-only">Next</span>
         </a>
+    </div>
     </div>
     <style>
         .carousel-control-next-icon:after {

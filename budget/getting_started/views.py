@@ -1,8 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
-from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
-from datetime import datetime, timedelta, date
+from datetime import timedelta
 from calendar import monthrange
 from decimal import Decimal
 
@@ -12,13 +11,11 @@ from budget.income.forms import IncomeForm
 from budget.frequency.models import Frequency
 from budget.bill.models import Bill
 from budget.bill.forms import BillForm
-from budget.account.models import Account
+from budget.account.models import Account, AccountType
 from budget.account.forms import AccountForm
 from budget.check_in_preferences.models import CheckInPreferences
 from budget.check_in_preferences.forms import CheckInPreferencesForm
 from budget.check_in.models import CheckIn
-
-import pprint
 
 
 class InitCheckinPreferences(TemplateView):
@@ -34,6 +31,7 @@ class InitCheckinPreferences(TemplateView):
         while next_check_in <= bill_next_due < next_check_in + time_delta:
             ratio += Decimal(1.00)
             bill_next_due = bill.next_due(bill_next_due)
+
         offset = Decimal(0.00)
         if next_check_in + time_delta <= bill_next_due < next_check_in + time_delta*2:
             diff = (bill_next_due - next_check_in + time_delta).days
@@ -65,8 +63,6 @@ class InitCheckinPreferences(TemplateView):
                 balance += entry.amount
                 next_paid = entry.next_paid(next_paid)
 
-        balance -= outgoing
-
         transaction = {
             'date': next_checkin_date,
             'projected_balance': balance,
@@ -79,17 +75,20 @@ class InitCheckinPreferences(TemplateView):
     def get(self, request, *args, **kwargs):
         user = request.user
         page = 'init_check_preferences.html'
-        form = CheckInPreferencesForm({'client': user.client})
+        form = CheckInPreferencesForm(client=user.client)
 
-        return render(request, page, {
-            'title': 'Check-in Configuration',
-            'user': user,
-            'form': form,
-            'guidance': 'Please indicate the frequency you would like to check in. Check ins are automated events that runs a comparison between your projected account and actual account balances.',
-            'button_label': 'Submit',
-            'next_destination': '/dashboard',
-            'previous_destination': '/gettingstarted/accounts'
-        })
+        if not user.client.started:
+            return render(request, page, {
+                'title': 'Check-in Configuration',
+                'user': user,
+                'form': form,
+                'guidance': 'Please indicate the frequency you would like to check in. Check ins are automated events that runs a comparison between your projected account and actual account balances.',
+                'button_label': 'Submit',
+                'next_destination': '/dashboard',
+                'previous_destination': '/gettingstarted/accounts'
+            })
+        else:
+            return HttpResponseRedirect(reverse('index'))
 
     def get_time_delta(self, preferences, last_paid):
         if preferences.frequency.title == 'monthly':
@@ -141,7 +140,7 @@ class InitCheckinPreferences(TemplateView):
                         time_delta = self.get_time_delta(
                             preferences, check_ins[-1]['date'])
                         next_date = check_ins[-1]['date'] + time_delta
-                        account_balance = check_ins[-1]['projected_balance']
+                        account_balance = check_ins[-1]['projected_balance'] - check_ins[-1]['outgoing_balance']
                     else:
                         account_balance = preferences.account.amount
                     check_ins.append(self.account_balance_projection(
@@ -160,7 +159,7 @@ class InitCheckinPreferences(TemplateView):
 
             return HttpResponseRedirect(reverse('dashboard'))
         else:
-            HttpResponseRedirect(reverse('check_in'))
+            return HttpResponseRedirect(reverse('check_in'))
 
 
 class GettingStarted(TemplateView):
@@ -208,7 +207,7 @@ class GettingStarted(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if client.started:
+            if not client.started:
                 form = self.get_form(end_point)
                 entries = self.get_entries(end_point, client)
                 title = end_point.title()
@@ -226,6 +225,8 @@ class GettingStarted(TemplateView):
                     'next_destination': next_destination,
                     'previous_destination': previous_destination
                 })
+            else:
+                return HttpResponseRedirect(reverse('index'))
         else:
             return HttpResponseRedirect(reverse('login'))
 
@@ -278,6 +279,7 @@ class GettingStarted(TemplateView):
                 self.create_entry(data, client, end_point)
 
                 return HttpResponseRedirect(request.path)
+        return HttpResponseRedirect(reverse('getting_started'))
 
 
 class GettingStartedEdit(TemplateView):
@@ -313,12 +315,15 @@ class GettingStartedEdit(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if client.started:
-                initial_data = self.get_model(end_point, id)
+            if not client.started:
+                initial_data = self.get_model(end_point, id, user.client)
+                if initial_data.exists():
+                    form = self.get_form(end_point, initial_data.values()[0])
 
-                form = self.get_form(end_point, initial_data.values()[0])
+                    title = end_point.title()
 
-                title = end_point.title()
+                else:
+                    return HttpResponseRedirect(f'/gettingstarted/{end_point}')
 
             return render(request, self.page, {
                 'title': title,
@@ -335,7 +340,7 @@ class GettingStartedEdit(TemplateView):
 
         if user:
             end_point = request.path.split('/')[-2]
-
+            redirect_path = request.path.split('/')[:-1]
             form = self.get_filled_form(end_point, request.POST)
 
             if form.is_valid():
@@ -343,7 +348,8 @@ class GettingStartedEdit(TemplateView):
                 data = form.cleaned_data
 
                 self.change_info(data, client, end_point, id)
-                redirect_path = request.path.split('/')[:-1]
+                return HttpResponseRedirect("/".join(redirect_path))
+            else:
                 return HttpResponseRedirect("/".join(redirect_path))
 
     def change_info(self, data, client, end_point, id):
@@ -374,11 +380,11 @@ class GettingStartedEdit(TemplateView):
                 account_type=data['account_type']
             )
 
-    def get_model(self, end_point, id):
+    def get_model(self, end_point, entry_id, client):
         entry_options = {
-            'income': Income.objects.filter(id=id),
-            'bills': Bill.objects.filter(id=id),
-            'accounts': Account.objects.filter(id=id)
+            'income': Income.objects.filter(owner=client).filter(id=entry_id),
+            'bills': Bill.objects.filter(owner=client).filter(id=entry_id),
+            'accounts': Account.objects.filter(owner=client).filter(id=entry_id)
         }
         return entry_options[end_point]
 
