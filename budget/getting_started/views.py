@@ -78,7 +78,7 @@ class InitCheckinPreferences(TemplateView):
     def get(self, request, *args, **kwargs):
         user = request.user
         page = 'init_check_preferences.html'
-        form = CheckInPreferencesForm({'client': user.client})
+        form = CheckInPreferencesForm(client=user.client)
 
         return render(request, page, {
             'title': 'Check-in Configuration',

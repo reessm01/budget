@@ -4,8 +4,8 @@
 
 {% block content %}
     <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-            <div class="text-center"><h5>Overview</h5></div>
+        <li class="list-group-item bg-secondary ">
+            <div class="text-center text-white"><h6>Overview</h6></div>
         </li>
 
         <li class="list-group-item">
@@ -22,9 +22,13 @@
                     <form method="POST">
                         {% csrf_token %}
                         {% for field in form.visible_fields %}
+                            {% if field.name != "checkin_id" %}
                             {{ field }}
+                            {% else %}
+                            {{ field.as_hidden }}
+                            {% endif %}
                         {% endfor %}
-                        {% if check_in.date > today %}
+                        {% if check_in.date > today or check_in.actual_balance != 0.00 %}
                             <button disabled type="submit" class="btn btn-primary mt-3">Update</button>
                         {% else %}
                             <button type="submit" class="btn btn-primary mt-3">Update</button>
@@ -41,8 +45,8 @@
             </div>
         </li>
 
-        <li class="list-group-item">
-            <div class="text-center"><h5>Details</h5></div>
+        <li class="list-group-item bg-secondary">
+            <div class="text-center text-white"><h6>Details</h6></div>
         </li>
 
         <li class="list-group-item">

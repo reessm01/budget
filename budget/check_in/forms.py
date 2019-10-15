@@ -17,6 +17,14 @@ from budget.check_in.models import CheckIn
     #     default=0.00
     #     )
 class CheckInForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        checkin_id = kwargs.pop('checkin_id', None)
+        super().__init__(*args, **kwargs)
+
+        if checkin_id:
+            self.fields['checkin_id'] = forms.IntegerField(
+                initial=checkin_id)
+
     class Meta:
         model = CheckIn
         fields = [

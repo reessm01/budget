@@ -147,7 +147,7 @@ class Dashboard(TemplateView):
             else:
                 previous_check_in = None
         return (selected, next_check_in, previous_check_in)
-
+    
     def get(self, request, *args, **kwargs):
         page = 'dashboard.html'
         user = request.user
@@ -174,10 +174,10 @@ class Dashboard(TemplateView):
             except KeyError:
                 entry_id = None
 
-            form = CheckInForm()
             file_paths = self.create_charts(user)
             bills, incomes = file_paths[0], file_paths[1]
             check_in, next_id, prev_id = self.get_checkin_info(user.client, entry_id)
+            form = CheckInForm(checkin_id=check_in.id)
             total_outbound = check_in.futures_balance + check_in.outgoing_balance
             outbound = total_outbound / (check_in.projected_balance)*100
             remaining = 100-outbound
@@ -213,3 +213,34 @@ class Dashboard(TemplateView):
             })
         else:
             return HttpResponseRedirect(reverse('getting_started'))
+
+    def process_checkin(self, updated_checkin, client):
+        check_ins = CheckIn.objects.filter(user=client).order_by('date')
+
+        sentinel = False
+        for check_in in check_ins:
+            if sentinel:
+                check_in.projected_balance += updated_checkin.difference
+                check_in.save()
+            elif check_in == updated_checkin:
+                sentinel = True
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        form = CheckInForm(request.POST)
+
+        if form.is_valid():
+            data = form.cleaned_data
+            checkin_id = int(request.POST['checkin_id'])
+
+            try:
+                check_in = CheckIn.objects.get(id=checkin_id)
+                check_in.actual_balance = data['actual_balance']
+                check_in.difference = check_in.actual_balance - check_in.projected_balance
+                check_in.save()
+                self.process_checkin(check_in, user.client)
+            except Exception as e:
+                print(e)
+                pass
+
+        return HttpResponseRedirect(f'/dashboard/{checkin_id}')
