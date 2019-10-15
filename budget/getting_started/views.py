@@ -12,7 +12,7 @@ from budget.income.forms import IncomeForm
 from budget.frequency.models import Frequency
 from budget.bill.models import Bill
 from budget.bill.forms import BillForm
-from budget.account.models import Account
+from budget.account.models import Account, AccountType
 from budget.account.forms import AccountForm
 from budget.check_in_preferences.models import CheckInPreferences
 from budget.check_in_preferences.forms import CheckInPreferencesForm
@@ -160,7 +160,7 @@ class InitCheckinPreferences(TemplateView):
 
             return HttpResponseRedirect(reverse('dashboard'))
         else:
-            HttpResponseRedirect(reverse('check_in'))
+            return HttpResponseRedirect(reverse('check_in'))
 
 
 class GettingStarted(TemplateView):
@@ -208,7 +208,7 @@ class GettingStarted(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if client.started:
+            if not client.started:
                 form = self.get_form(end_point)
                 entries = self.get_entries(end_point, client)
                 title = end_point.title()
@@ -313,7 +313,7 @@ class GettingStartedEdit(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if client.started:
+            if not client.started:
                 initial_data = self.get_model(end_point, id)
 
                 form = self.get_form(end_point, initial_data.values()[0])

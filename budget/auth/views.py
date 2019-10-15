@@ -60,7 +60,7 @@ class login_client(TemplateView):
                         'form': form,
                         'button_label': self.button_label,
                         'message': message
-                        })
+                    })
             else:
                 error_message = 'Incorrect username or password!'
                 return render(request, self.page, {
@@ -68,7 +68,7 @@ class login_client(TemplateView):
                     'form': form,
                     'button_label': self.button_label,
                     'error_message': error_message
-                    })
+                })
 
 
 class register(TemplateView):
