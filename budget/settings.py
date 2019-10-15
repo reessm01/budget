@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'mathfilters'
 ]
 
+LOGIN_URL = 'login'
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [

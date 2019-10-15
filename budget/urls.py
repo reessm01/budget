@@ -13,6 +13,20 @@ from budget.account.urls import url_patterns as account_urls
 from budget.income.urls import url_patterns as income_urls
 from budget.client.urls import url_patterns as client_urls
 from budget.bill.urls import url_patterns as bill_urls
+from django.shortcuts import render
+import os
+
+
+def error_404(request, exception):
+    return render(request, '404.html', status=404)
+
+
+def error_500(request):
+    return render(request, '500.html', status=500)
+
+
+handler404 = error_404
+handler500 = error_500
 
 urlpatterns = [
     path('admin/', admin.site.urls),

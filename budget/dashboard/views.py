@@ -1,5 +1,4 @@
-from django.shortcuts import render, HttpResponseRedirect, reverse, HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
 import os
@@ -126,7 +125,6 @@ class Dashboard(TemplateView):
         check_ins = CheckIn.objects.filter(user=client).order_by('date')
         selected = ''
         selected_index = -1
-        previous_index = -1
         try:
             selected = check_ins.filter(id=entry_id)[0]
             for i, check_in in enumerate(check_ins):
@@ -162,7 +160,7 @@ class Dashboard(TemplateView):
                 owner=user.client).exists()
             accounts_completed = Account.objects.filter(
                 owner=user.client).exists()
-            checkins_exist = Checkin.objects.filter(
+            checkins_exist = CheckIn.objects.filter(
                 user=user.client).exists()
             criteria_set_1 = bills_completed and income_completed
             critieria_set_2 = accounts_completed and checkins_exist
@@ -247,4 +245,6 @@ class Dashboard(TemplateView):
                 print(e)
                 pass
 
-        return HttpResponseRedirect(f'/dashboard/{checkin_id}')
+            return HttpResponseRedirect(f'/dashboard/{checkin_id}')
+        else:
+            return HttpResponseRedirect(reverse('dashboard'))
