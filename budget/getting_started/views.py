@@ -140,7 +140,7 @@ class InitCheckinPreferences(TemplateView):
                         time_delta = self.get_time_delta(
                             preferences, check_ins[-1]['date'])
                         next_date = check_ins[-1]['date'] + time_delta
-                        account_balance = check_ins[-1]['projected_balance']
+                        account_balance = check_ins[-1]['projected_balance'] - check_ins[-1]['outgoing_balance']
                     else:
                         account_balance = preferences.account.amount
                     check_ins.append(self.account_balance_projection(

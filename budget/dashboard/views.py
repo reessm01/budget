@@ -1,12 +1,15 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
+from django.core.exceptions import ObjectDoesNotExist
 import os
+import datetime
 
 from budget.bill.models import Bill
 from budget.income.models import Income
 from budget.account.models import Account
 from budget.check_in.models import CheckIn
+from budget.check_in.forms import CheckInForm
 
 
 class Dashboard(TemplateView):
@@ -116,14 +119,34 @@ class Dashboard(TemplateView):
 
         return images
 
-    def get_checkin_info(self, client):
-        check_ins = CheckIn.objects.filter(user=client).order_by('-date')
+    def get_checkin_info(self, client, entry_id):
+        check_ins = CheckIn.objects.filter(user=client).order_by('date')
         selected = ''
-        for check_in in check_ins:
-            if check_in.actual_balance == 0:
-                selected = check_in
+        selected_index = -1
+        previous_index = -1
+        try:
+            selected = check_ins.filter(id=entry_id)[0]
+            for i, check_in in enumerate(check_ins):
+                if check_in.id == entry_id:
+                    selected_index = i
+                    break
+        except (ObjectDoesNotExist, IndexError):
+            for i, check_in in enumerate(check_ins):
+                if check_in.actual_balance == 0:
+                    selected = check_in
+                    selected_index = i
+                    break
+        finally:
+            if selected_index + 1 < len(check_ins) and selected_index != -1:
+                next_check_in = check_ins[selected_index + 1].id
+            else:
+                next_check_in = None
 
-        return selected
+            if selected_index - 1 >= 0:
+                previous_check_in = check_ins[selected_index - 1].id
+            else:
+                previous_check_in = None
+        return (selected, next_check_in, previous_check_in)
 
     def get(self, request, *args, **kwargs):
         page = 'dashboard.html'
@@ -146,13 +169,34 @@ class Dashboard(TemplateView):
                 user.client.save()
 
         if user.client.started:
+            try:
+                entry_id = int(self.kwargs['id'])
+            except KeyError:
+                entry_id = None
+
+            form = CheckInForm()
             file_paths = self.create_charts(user)
             bills, incomes = file_paths[0], file_paths[1]
-            check_in = self.get_checkin_info(user.client)
+            check_in, next_id, prev_id = self.get_checkin_info(user.client, entry_id)
             total_outbound = check_in.futures_balance + check_in.outgoing_balance
             outbound = total_outbound / (check_in.projected_balance)*100
             remaining = 100-outbound
-            print(outbound)
+            base_link = '/dashboard/'
+
+            if check_in.date <= datetime.date.today():
+                subtitle_text_style = 'text-danger'
+            else:
+                subtitle_text_style = 'text-muted'
+
+            if next_id is None:
+                next_link = None
+            else:
+                next_link = f'{base_link}{next_id}'
+
+            if prev_id is None:
+                prev_link = None
+            else:
+                prev_link = f'{base_link}{prev_id}'
             return render(request, page, {
                 'bills': bills,
                 'incomes': incomes,
@@ -160,7 +204,11 @@ class Dashboard(TemplateView):
                 'remaining_p': remaining,
                 'check_in': check_in,
                 'total_outbound': total_outbound,
-                'remaining_cash': check_in.projected_balance - total_outbound
+                'remaining_cash': check_in.projected_balance - total_outbound,
+                'next': next_link,
+                'back': prev_link,
+                'form': form,
+                'subtitle_text_style': subtitle_text_style
             })
         else:
             return HttpResponseRedirect(reverse('getting_started'))

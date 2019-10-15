@@ -4,6 +4,14 @@
 {% load budget_tags %}
 {% load humanize %}
 {% block content %}
-    {% include "check_in.html" %}
-    {% include "chart.html" %}
+    <h1>Dashboard</h1>
+    {% include "money_bar.html" %}
+    <div class="row">
+    <div class="col-4">
+        {% include "check_in.html" %}
+    </div>
+    <div class="col-8">
+        {% include "chart.html" %}
+    </div>
+    </div>
 {% endblock %}
