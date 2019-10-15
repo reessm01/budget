@@ -86,7 +86,7 @@ class Dashboard(TemplateView):
                 for entry in query.order_by('-last_modified')
             ][0]
             filename = f'{user.id}_{title}_{last_modified}.png'
-            
+
             if filename not in image_directory:
                 previous_filename = self.process_previous_filename(
                     user, title, image_directory, path, True)
@@ -95,19 +95,22 @@ class Dashboard(TemplateView):
                         total = sum([entry.amount for entry in query])
                         sizes = [entry.amount/total for entry in query]
                         labels = [entry.title for entry in query]
-                        self.save_chart(user, total, sizes, labels, path + filename)
+                        self.save_chart(user, total, sizes,
+                                        labels, path + filename)
                     else:
-                        income_total = sum([entry.amount*entry.frequency.number_of_paychecks for entry in query])
+                        income_total = sum(
+                            [entry.amount*entry.frequency.number_of_paychecks for entry in query])
                         bills_total = sum([
                             entry.amount*entry.frequency.number_of_paychecks for entry in chart_info[0][1]
-                            ])
+                        ])
                         total = income_total + bills_total
                         sizes = [
                             entry/total
                             for entry in [income_total, bills_total]
-                            ]
+                        ]
                         labels = [entry for entry in ['income', 'bills']]
-                        self.save_chart(user, total, sizes, labels, path + filename)
+                        self.save_chart(user, total, sizes,
+                                        labels, path + filename)
                     images.append('img/' + filename)
                 else:
                     images.append('img/' + previous_filename)
@@ -147,7 +150,7 @@ class Dashboard(TemplateView):
             else:
                 previous_check_in = None
         return (selected, next_check_in, previous_check_in)
-    
+
     def get(self, request, *args, **kwargs):
         page = 'dashboard.html'
         user = request.user
@@ -176,14 +179,15 @@ class Dashboard(TemplateView):
 
             file_paths = self.create_charts(user)
             bills, incomes = file_paths[0], file_paths[1]
-            check_in, next_id, prev_id = self.get_checkin_info(user.client, entry_id)
+            check_in, next_id, prev_id = self.get_checkin_info(
+                user.client, entry_id)
             form = CheckInForm(checkin_id=check_in.id)
             total_outbound = check_in.futures_balance + check_in.outgoing_balance
             outbound = total_outbound / (check_in.projected_balance)*100
             remaining = 100-outbound
             base_link = '/dashboard/'
 
-            if check_in.date <= datetime.date.today():
+            if check_in.date <= datetime.date.today() and check_in.actual_balance == 0.00:
                 subtitle_text_style = 'text-danger'
             else:
                 subtitle_text_style = 'text-muted'

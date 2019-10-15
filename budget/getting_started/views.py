@@ -207,7 +207,7 @@ class GettingStarted(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if client.started:
+            if not client.started:
                 form = self.get_form(end_point)
                 entries = self.get_entries(end_point, client)
                 title = end_point.title()
@@ -312,7 +312,7 @@ class GettingStartedEdit(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if client.started:
+            if not client.started:
                 initial_data = self.get_model(end_point, id)
 
                 form = self.get_form(end_point, initial_data.values()[0])
