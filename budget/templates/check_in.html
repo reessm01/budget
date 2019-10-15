@@ -7,15 +7,7 @@
     <div class="card-body">
         <h5 class="card-title">Check-In</h5>
         <h6 class="card-subtitle mb-2 {{subtitle_text_style}}">{{check_in.date}}</h6>
-        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-        <a href="#" class="card-link">Card link</a>
-        <a href="#" class="card-link">Another link</a>
-
-        <form method="POST">
-            {% csrf_token %}
-            {{ form | crispy }}
-            <button type="submit" class="btn btn-primary mt-3">Update</button>
-        </form>
+        {% include "check_in_info.html" %}
     </div>
 </div>
 

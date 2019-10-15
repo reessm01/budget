@@ -208,7 +208,8 @@ class Dashboard(TemplateView):
                 'next': next_link,
                 'back': prev_link,
                 'form': form,
-                'subtitle_text_style': subtitle_text_style
+                'subtitle_text_style': subtitle_text_style,
+                'today': datetime.date.today()
             })
         else:
             return HttpResponseRedirect(reverse('getting_started'))
