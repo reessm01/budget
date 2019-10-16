@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.http import HttpResponseServerError
 
 from .forms import LoginForm, RegisterForm
 from budget.client.models import Client
@@ -22,53 +23,60 @@ class login_client(TemplateView):
     button_label = 'Submit'
 
     def get(self, request, *args, **kwargs):
-        form = LoginForm()
-        if request.user.is_anonymous:
-            user = None
-        else:
-            user = request.user
+        try:
+            form = LoginForm()
+            if request.user.is_anonymous:
+                user = None
+            else:
+                user = request.user
 
-        return render(request, self.page, {'user': user, 'form': form, 'button_label': self.button_label})
+            return render(request, self.page, {'user': user, 'form': form, 'button_label': self.button_label})
+        
+        except Exception:
+            return HttpResponseServerError()
 
     def post(self, request, *args, **kwargs):
         form = LoginForm(request.POST)
 
-        if form.is_valid():
-            data = form.cleaned_data
-            user = authenticate(
-                username=data['username'],
-                password=data['password']
-            )
+        try:
+            if form.is_valid():
+                data = form.cleaned_data
+                user = authenticate(
+                    username=data['username'],
+                    password=data['password']
+                )
 
-            if user is not None:
-                login(request, user)
-                destination = request.GET.get('next')
+                if user is not None:
+                    login(request, user)
+                    destination = request.GET.get('next')
+                    client = Client.objects.get(user=user)
 
-                client = Client.objects.get(user=user)
-                print(client.started)
-                if not client.started:
-                    return(HttpResponseRedirect(reverse('getting_started')))
+                    if not client.started:
+                        return(HttpResponseRedirect(reverse('getting_started')))
+                    else:
+                        return(HttpResponseRedirect(reverse('dashboard')))
+
+                    if destination:
+                        return(HttpResponseRedirect(destination))
+                    else:
+                        message = 'Login working'
+                        return render(request, self.page, {
+                            'user': user,
+                            'form': form,
+                            'button_label': self.button_label,
+                            'message': message
+                        })
                 else:
-                    return(HttpResponseRedirect(reverse('dashboard')))
-
-                if destination:
-                    return(HttpResponseRedirect(destination))
-                else:
-                    message = 'Login working'
+                    error_message = 'Incorrect username or password!'
                     return render(request, self.page, {
-                        'user': user,
+                        'user': None,
                         'form': form,
                         'button_label': self.button_label,
-                        'message': message
+                        'error_message': error_message
                     })
-            else:
-                error_message = 'Incorrect username or password!'
-                return render(request, self.page, {
-                    'user': None,
-                    'form': form,
-                    'button_label': self.button_label,
-                    'error_message': error_message
-                })
+
+        except Exception:
+            return HttpResponseServerError()
 
 
 class register(TemplateView):
@@ -76,9 +84,16 @@ class register(TemplateView):
     button_label = 'Lets budget!'
 
     def get(self, request, *args, **kwargs):
-        form = RegisterForm()
+        try:
+            form = RegisterForm()
 
-        return render(request, self.page, {'user': None, 'form': form, 'button_label': self.button_label})
+            return render(request, self.page, {
+                'user': None,
+                'form': form,
+                'button_label': self.button_label
+                })
+        except Exception:
+            return HttpResponseServerError()
 
     def post(self, request, *args, **kwargs):
         form = RegisterForm(request.POST)
@@ -102,4 +117,12 @@ class register(TemplateView):
             except IntegrityError as error:
                 form = RegisterForm()
 
-                return render(request, self.page, {'user': None, 'form': form, 'error_message': error, 'button_label': self.button_label})
+                return render(request, self.page, {
+                    'user': None,
+                    'form': form,
+                    'error_message': error,
+                    'button_label': self.button_label
+                    })
+
+            except Exception:
+                return HttpResponseServerError()

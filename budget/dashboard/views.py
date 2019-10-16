@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseServerError
 import os
 import datetime
 
@@ -17,7 +18,7 @@ class Dashboard(TemplateView):
         matplotlib.use('TkAgg')
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-
+        
         explode = [0 if size >= 0.05 else 0.25 for size in sizes]
         fig1, ax1 = plt.subplots()
         wedges, _ = ax1.pie(sizes, explode=explode, shadow=True)
@@ -154,20 +155,23 @@ class Dashboard(TemplateView):
         user = request.user
 
         if not user.client.started:
-            bills_completed = Bill.objects.filter(
-                owner=user.client).exists()
-            income_completed = Income.objects.filter(
-                owner=user.client).exists()
-            accounts_completed = Account.objects.filter(
-                owner=user.client).exists()
-            checkins_exist = CheckIn.objects.filter(
-                user=user.client).exists()
-            criteria_set_1 = bills_completed and income_completed
-            critieria_set_2 = accounts_completed and checkins_exist
-            criteria_met = criteria_set_1 and critieria_set_2
-            if criteria_met:
-                user.client.started = True
-                user.client.save()
+            try:
+                bills_completed = Bill.objects.filter(
+                    owner=user.client).exists()
+                income_completed = Income.objects.filter(
+                    owner=user.client).exists()
+                accounts_completed = Account.objects.filter(
+                    owner=user.client).exists()
+                checkins_exist = CheckIn.objects.filter(
+                    user=user.client).exists()
+                criteria_set_1 = bills_completed and income_completed
+                critieria_set_2 = accounts_completed and checkins_exist
+                criteria_met = criteria_set_1 and critieria_set_2
+                if criteria_met:
+                    user.client.started = True
+                    user.client.save()
+            except Exception:
+                return HttpResponseServerError()
 
         if user.client.started:
             try:
@@ -175,44 +179,48 @@ class Dashboard(TemplateView):
             except KeyError:
                 entry_id = None
 
-            file_paths = self.create_charts(user)
-            bills, incomes = file_paths[0], file_paths[1]
-            check_in, next_id, prev_id = self.get_checkin_info(
-                user.client, entry_id)
-            form = CheckInForm(checkin_id=check_in.id)
-            total_outbound = check_in.futures_balance + check_in.outgoing_balance
-            outbound = total_outbound / (check_in.projected_balance)*100
-            remaining = 100-outbound
-            base_link = '/dashboard/'
+            try:
+                file_paths = self.create_charts(user)
+                bills, incomes = file_paths[0], file_paths[1]
+                check_in, next_id, prev_id = self.get_checkin_info(
+                    user.client, entry_id)
+                form = CheckInForm(checkin_id=check_in.id)
+                total_outbound = check_in.futures_balance + check_in.outgoing_balance
+                outbound = total_outbound / (check_in.projected_balance)*100
+                remaining = 100-outbound
+                base_link = '/dashboard/'
 
-            if check_in.date <= datetime.date.today() and check_in.actual_balance == 0.00:
-                subtitle_text_style = 'text-danger'
-            else:
-                subtitle_text_style = 'text-muted'
+                if check_in.date <= datetime.date.today() and check_in.actual_balance == 0.00:
+                    subtitle_text_style = 'text-danger'
+                else:
+                    subtitle_text_style = 'text-muted'
 
-            if next_id is None:
-                next_link = None
-            else:
-                next_link = f'{base_link}{next_id}'
+                if next_id is None:
+                    next_link = None
+                else:
+                    next_link = f'{base_link}{next_id}'
 
-            if prev_id is None:
-                prev_link = None
-            else:
-                prev_link = f'{base_link}{prev_id}'
-            return render(request, page, {
-                'bills': bills,
-                'incomes': incomes,
-                'outbound': outbound,
-                'remaining_p': remaining,
-                'check_in': check_in,
-                'total_outbound': total_outbound,
-                'remaining_cash': check_in.projected_balance - total_outbound,
-                'next': next_link,
-                'back': prev_link,
-                'form': form,
-                'subtitle_text_style': subtitle_text_style,
-                'today': datetime.date.today()
-            })
+                if prev_id is None:
+                    prev_link = None
+                else:
+                    prev_link = f'{base_link}{prev_id}'
+
+                return render(request, page, {
+                    'bills': bills,
+                    'incomes': incomes,
+                    'outbound': outbound,
+                    'remaining_p': remaining,
+                    'check_in': check_in,
+                    'total_outbound': total_outbound,
+                    'remaining_cash': check_in.projected_balance - total_outbound,
+                    'next': next_link,
+                    'back': prev_link,
+                    'form': form,
+                    'subtitle_text_style': subtitle_text_style,
+                    'today': datetime.date.today()
+                })
+            except Exception:
+                return HttpResponseServerError()
         else:
             return HttpResponseRedirect(reverse('getting_started'))
 
@@ -241,9 +249,8 @@ class Dashboard(TemplateView):
                 check_in.difference = check_in.actual_balance - check_in.projected_balance
                 check_in.save()
                 self.process_checkin(check_in, user.client)
-            except Exception as e:
-                print(e)
-                pass
+            except Exception:
+                return HttpResponseServerError()
 
             return HttpResponseRedirect(f'/dashboard/{checkin_id}')
         else:

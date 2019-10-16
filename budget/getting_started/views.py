@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseServerError
 from datetime import timedelta
 from calendar import monthrange
 from decimal import Decimal
@@ -124,38 +125,44 @@ class InitCheckinPreferences(TemplateView):
                     income=data['income']
                 )
 
+            except Exception:
+                return HttpResponseServerError()
+
             finally:
-                CheckIn.objects.filter(user=user.client).delete()
-                time_delta = self.get_time_delta(
-                    preferences, preferences.income.last_paid)
+                try:
+                    CheckIn.objects.filter(user=user.client).delete()
+                    time_delta = self.get_time_delta(
+                        preferences, preferences.income.last_paid)
 
-                next_date = preferences.income.last_paid + time_delta
-                bills = Bill.objects.filter(owner=user.client)
-                income = Income.objects.filter(owner=user.client)
-                check_ins = []
-                for sequence in range(
-                        1, preferences.frequency.number_of_paychecks + 1
-                ):
-                    if sequence != 1:
-                        time_delta = self.get_time_delta(
-                            preferences, check_ins[-1]['date'])
-                        next_date = check_ins[-1]['date'] + time_delta
-                        account_balance = check_ins[-1]['projected_balance'] - check_ins[-1]['outgoing_balance']
-                    else:
-                        account_balance = preferences.account.amount
-                    check_ins.append(self.account_balance_projection(
-                        bills, account_balance, next_date,
-                        preferences.account, time_delta, sequence, income
-                    ))
+                    next_date = preferences.income.last_paid + time_delta
+                    bills = Bill.objects.filter(owner=user.client)
+                    income = Income.objects.filter(owner=user.client)
+                    check_ins = []
+                    for sequence in range(
+                            1, preferences.frequency.number_of_paychecks + 1
+                    ):
+                        if sequence != 1:
+                            time_delta = self.get_time_delta(
+                                preferences, check_ins[-1]['date'])
+                            next_date = check_ins[-1]['date'] + time_delta
+                            account_balance = check_ins[-1]['projected_balance'] - check_ins[-1]['outgoing_balance']
+                        else:
+                            account_balance = preferences.account.amount
+                        check_ins.append(self.account_balance_projection(
+                            bills, account_balance, next_date,
+                            preferences.account, time_delta, sequence, income
+                        ))
 
-                for check_in in check_ins:
-                    CheckIn.objects.create(
-                        user=user.client,
-                        date=check_in['date'],
-                        projected_balance=check_in['projected_balance'],
-                        futures_balance=check_in['futures_balance'],
-                        outgoing_balance=check_in['outgoing_balance']
-                    )
+                    for check_in in check_ins:
+                        CheckIn.objects.create(
+                            user=user.client,
+                            date=check_in['date'],
+                            projected_balance=check_in['projected_balance'],
+                            futures_balance=check_in['futures_balance'],
+                            outgoing_balance=check_in['outgoing_balance']
+                        )
+                except Exception:
+                    return HttpResponseServerError()        
 
             return HttpResponseRedirect(reverse('dashboard'))
         else:
@@ -269,16 +276,20 @@ class GettingStarted(TemplateView):
         user = request.user
 
         if user:
-            end_point = request.path.split('/')[-1]
-            form = self.get_filled_form(end_point, request.POST)
+            try:
+                end_point = request.path.split('/')[-1]
+                form = self.get_filled_form(end_point, request.POST)
 
-            if form.is_valid():
-                client = Client.objects.get(user=user)
-                data = form.cleaned_data
+                if form.is_valid():
+                    client = Client.objects.get(user=user)
+                    data = form.cleaned_data
 
-                self.create_entry(data, client, end_point)
+                    self.create_entry(data, client, end_point)
 
-                return HttpResponseRedirect(request.path)
+                    return HttpResponseRedirect(request.path)
+            except Exception:
+                return HttpResponseServerError()
+
         return HttpResponseRedirect(reverse('getting_started'))
 
 
@@ -339,18 +350,21 @@ class GettingStartedEdit(TemplateView):
         user = request.user
 
         if user:
-            end_point = request.path.split('/')[-2]
-            redirect_path = request.path.split('/')[:-1]
-            form = self.get_filled_form(end_point, request.POST)
+            try:
+                end_point = request.path.split('/')[-2]
+                redirect_path = request.path.split('/')[:-1]
+                form = self.get_filled_form(end_point, request.POST)
 
-            if form.is_valid():
-                client = Client.objects.get(user=user)
-                data = form.cleaned_data
+                if form.is_valid():
+                    client = Client.objects.get(user=user)
+                    data = form.cleaned_data
 
-                self.change_info(data, client, end_point, id)
-                return HttpResponseRedirect("/".join(redirect_path))
-            else:
-                return HttpResponseRedirect("/".join(redirect_path))
+                    self.change_info(data, client, end_point, id)
+                    return HttpResponseRedirect("/".join(redirect_path))
+                else:
+                    return HttpResponseRedirect("/".join(redirect_path))
+            except Exception:
+                return HttpResponseServerError()
 
     def change_info(self, data, client, end_point, id):
         if end_point == 'income':
