@@ -162,7 +162,7 @@ class InitCheckinPreferences(TemplateView):
                             outgoing_balance=check_in['outgoing_balance']
                         )
                 except Exception:
-                    return HttpResponseServerError()        
+                    return HttpResponseServerError()     
 
             return HttpResponseRedirect(reverse('dashboard'))
         else:

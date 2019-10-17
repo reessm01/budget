@@ -18,6 +18,7 @@
         <li class="list-group-item">
             <div class="row">
                 <div class="col-6"><b>Actual Balance:</b></div>
+                {% if check_in.actual_balance == 0.00 %}
                 <div class="d-flex col-6">
                     <form method="POST">
                         {% csrf_token %}
@@ -35,6 +36,9 @@
                         {% endif %}
                     </form>
                 </div>
+                {% else %}
+                <div class="col-6">${{check_in.actual_balance|intcomma}}</div>
+                {% endif %}
             </div>
         </li>
 
