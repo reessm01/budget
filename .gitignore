@@ -106,3 +106,4 @@ venv.bak/
 *.pyc
 img/
 .DS_Store
+node_modules/
