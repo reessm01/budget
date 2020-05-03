@@ -2,7 +2,33 @@
 {% load static %}
 
 {% block content %}
-<div class="card p-3">
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script type="text/javascript">
+    function loadChart(chart_data, chart_title) {
+        let titleList = chart_title.id.split('_')
+        for(index in titleList) {
+            word = titleList[index]
+            word = word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()
+            titleList[index] = word
+        }
+        const title = titleList.join(' ')
+        var chart = new CanvasJS.Chart(chart_title, {
+            animationEnabled: true,
+            title: {
+                text: title
+            },
+            data: [{
+                type: "pie",
+                startAngle: 240,
+                yValueFormatString: "##0.00\"%\"",
+                indexLabel: "{label} {y}",
+                dataPoints: chart_data
+            }]
+        });
+        chart.render();
+    }
+</script>
+<div class="card p-3 h-100">
     <h5 class="card-title">Charts</h5>
     <h6 class="card-subtitle mb-2 text-muted">Visual representations of the budget</h6>
     <div
@@ -18,22 +44,16 @@
 
         <div class="carousel-inner">
             <div class="carousel-item active text-center">
-                <h5>Bill Ratios</h5>
-                <img
-                    src="{% static bills %}"
-                    class="d-block mx-auto"
-                    style="height: 300px; width: auto; margin-top: 2rem;"
-                    alt="..."
-                    >
+                <div id="{{income_debt_ratio_chart.title}}" class="chart"></div>
+                <script type="text/javascript">
+                    loadChart({{income_debt_ratio_chart.data|safe}}, {{income_debt_ratio_chart.title|safe}})
+                </script>
             </div>
             <div class="carousel-item text-center">
-                <h5>Income vs Bills Ratio</h5>
-                <img
-                    src="{% static incomes %}"
-                    class="d-block mx-auto"
-                    style="height: 300px; width: auto; margin-top: 2rem;"
-                    alt="..."
-                    >
+                <div id="{{debt_ratio_chart.title}}" class="chart"></div>
+                <script type="text/javascript">
+                    loadChart({{debt_ratio_chart.data|safe}}, {{debt_ratio_chart.title|safe}})
+                </script>
             </div>
         </div>
         <a class="carousel-control-prev"
@@ -76,5 +96,10 @@
         .carousel-inner {
             padding-bottom:70px;
             }
+
+        .chart {
+            height: 400px;
+            width: 100%;
+        }
     </style>
 {% endblock %}
