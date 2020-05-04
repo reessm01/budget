@@ -4,15 +4,26 @@
 {% block content %}
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <script type="text/javascript">
+    tracker = 0
+    datas = [
+        {
+            title: '{{income_debt_ratio_chart.title}}',
+            data: {{income_debt_ratio_chart.data|safe}}
+        },
+        {
+            title: '{{debt_ratio_chart.title}}',
+            data: {{debt_ratio_chart.data|safe}}
+        }
+    ]
     function loadChart(chart_data, chart_title) {
-        let titleList = chart_title.id.split('_')
+        let titleList = chart_title.split('_')
         for(index in titleList) {
             word = titleList[index]
             word = word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()
             titleList[index] = word
         }
         const title = titleList.join(' ')
-        var chart = new CanvasJS.Chart(chart_title, {
+        var chart = new CanvasJS.Chart('chart', {
             animationEnabled: true,
             title: {
                 text: title
@@ -27,6 +38,23 @@
         });
         chart.render();
     }
+
+    function switchSlides() {
+        if(tracker) {
+            tracker = 0
+        } else {
+            tracker = 1
+        }
+
+        $('#chart').remove()
+        $('#chartParent').append(`<div id="chart" class="chart"></div>`)
+
+        loadChart(datas[tracker].data, datas[tracker].title)
+    }
+
+    $( document ).ready(function() {
+        loadChart(datas[tracker].data, datas[tracker].title)
+    });
 </script>
 <div class="card p-3 h-100">
     <h5 class="card-title">Charts</h5>
@@ -43,28 +71,20 @@
         </ol>
 
         <div class="carousel-inner">
-            <div class="carousel-item active text-center">
-                <div id="{{income_debt_ratio_chart.title}}" class="chart"></div>
-                <script type="text/javascript">
-                    loadChart({{income_debt_ratio_chart.data|safe}}, {{income_debt_ratio_chart.title|safe}})
-                </script>
-            </div>
-            <div class="carousel-item text-center">
-                <div id="{{debt_ratio_chart.title}}" class="chart"></div>
-                <script type="text/javascript">
-                    loadChart({{debt_ratio_chart.data|safe}}, {{debt_ratio_chart.title|safe}})
-                </script>
+            <div class="carousel-item active text-center" id="chartParent">
+                <div id="chart" class="chart"></div>
             </div>
         </div>
         <a class="carousel-control-prev"
             href="#carouselExampleControls"
             role="button"
             data-slide="prev"
+            onclick="switchSlides()"
             >
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="sr-only">Previous</span>
         </a>
-        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+        <a onclick="switchSlides()" class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="sr-only">Next</span>
         </a>
