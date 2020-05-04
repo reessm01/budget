@@ -75,7 +75,7 @@ class InitCheckinPreferences(TemplateView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        page = 'init_check_preferences.html'
+        page = 'getting started/init_check_preferences.html'
         form = CheckInPreferencesForm(client=user.client)
 
         if not user.client.started:
@@ -170,7 +170,7 @@ class InitCheckinPreferences(TemplateView):
 
 
 class GettingStarted(TemplateView):
-    page = 'getting_started.html'
+    page = 'getting started/getting_started.html'
 
     def get_form(self, end_point):
         form_options = {
@@ -294,7 +294,7 @@ class GettingStarted(TemplateView):
 
 
 class GettingStartedEdit(TemplateView):
-    page = 'getting_started_edit.html'
+    page = 'getting started/getting_started_edit.html'
 
     def get_form(self, end_point, initial_data):
 

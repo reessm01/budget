@@ -22,7 +22,7 @@
 
 ## Templates
 Add:<br>
-{% extends 'base.html' %}<br>
+{% extends 'common/base.html' %}<br>
 {% load crispy_forms_tags %}<br>
 {% block content %}<br>
 your_content_here<br>

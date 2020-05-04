@@ -1,4 +1,4 @@
-{% extends 'base.html' %} 
+{% extends 'common/base.html' %} 
 {% load crispy_forms_tags %} 
 {% load static %}
 {% block content %}
@@ -13,6 +13,6 @@
             {{ form | crispy }}
             <button type="submit" class="btn btn-primary mt-3">{{ button_label }}</button>
         </form>
-        {% include "navigators.html" %}
+        {% include "getting started/navigators.html" %}
     </div>
 {% endblock %}

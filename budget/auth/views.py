@@ -19,7 +19,7 @@ class logout_client(TemplateView):
 
 
 class login_client(TemplateView):
-    page = 'form.html'
+    page = 'forms/form.html'
     button_label = 'Submit'
 
     def get(self, request, *args, **kwargs):
@@ -80,7 +80,7 @@ class login_client(TemplateView):
 
 
 class register(TemplateView):
-    page = 'form.html'
+    page = 'forms/form.html'
     button_label = 'Lets budget!'
 
     def get(self, request, *args, **kwargs):

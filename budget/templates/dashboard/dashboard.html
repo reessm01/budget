@@ -1,17 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'common/base.html' %}
 {% load crispy_forms_tags %}
 {% load static %}
 {% load budget_tags %}
 {% load humanize %}
 {% block content %}
     <h1>Dashboard</h1>
-    {% include "money_bar.html" %}
+    {% include "dashboard/money_bar.html" %}
     <div class="row">
         <div class="col-4">
-            {% include "check_in.html" %}
+            {% include "dashboard/check_in.html" %}
         </div>
         <div class="col-8">
-            {% include "chart.html" %}
+            {% include "dashboard/chart.html" %}
         </div>
     </div>
 {% endblock %}
