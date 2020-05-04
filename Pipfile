@@ -11,8 +11,6 @@ autopep8 = "*"
 django = "*"
 django-crispy-forms = "*"
 django-bootstrap4 = "*"
-matplotlib = "*"
-numpy = "*"
 django-mathfilters = "*"
 python-dotenv = "*"
 
