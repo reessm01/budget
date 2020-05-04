@@ -39,40 +39,17 @@
         chart.render();
     }
 
-    function removeActive(n) {
-        $(`#list${tracker}`).removeClass()
-    }
+    function switchSlides() {
+        if(tracker) {
+            tracker = 0
+        } else {
+            tracker = 1
+        }
 
-    function addActive(n) {
-        $(`#list${tracker}`).addClass('active')
-    }
-
-    function determineIndex(n) {
-        if(tracker + n >= 0 && tracker + n < datas.length) tracker += n
-        else if(tracker + n < 0) tracker = datas.length - 1
-        else tracker = 0
-    }
-
-    function refreshChart() {
         $('#chart').remove()
         $('#chartParent').append(`<div id="chart" class="chart"></div>`)
 
         loadChart(datas[tracker].data, datas[tracker].title)
-    }
-
-    function selectSlide(e) {
-        const id = parseInt(e.target.id.replace(/\D/g,''))
-        removeActive(tracker)
-        tracker = id
-        loadChart(datas[tracker].data, datas[tracker].title)
-        addActive(tracker)
-    }
-
-    function switchSlides(n) {
-        removeActive(tracker)
-        determineIndex(n)
-        addActive(tracker)
-        refreshChart()
     }
 
     $( document ).ready(function() {
@@ -102,12 +79,12 @@
             href="#carouselExampleControls"
             role="button"
             data-slide="prev"
-            onclick="switchSlides(-1)"
+            onclick="switchSlides()"
             >
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="sr-only">Previous</span>
         </a>
-        <a onclick="switchSlides(1)" class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+        <a onclick="switchSlides()" class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="sr-only">Next</span>
         </a>
