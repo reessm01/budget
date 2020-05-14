@@ -1,0 +1,35 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load bootstrap4 %}
+{% block content %}
+<div class="container-fluid d-flex justify-content-between p-3 bg-dark footer w-100 m-0 text-light">
+    <div class="row align-items-center">
+        <div class="col d-flex">
+            <a href="#">©2020 Budgeteer</a>
+            <a href="#">Terms</a>
+            <a href="#">Privacy</a>
+            <a href="#">Security</a>
+        </div>
+    </div>
+    <div class="row align-items-center">
+        <img src="{% static 'img/budgeteericon.png' %}"/>
+    </div>
+    <div class="row align-items-center">
+        <div class="col d-flex">
+            <a href="#">Contact</a>
+            <a href="#">Pricing</a>
+            <a href="#">Blog</a>
+            <a href="#">About</a>
+        </div>
+    </div>
+</div>
+<style scoped>
+    .footer img {
+        width: 3rem;
+        height: auto;
+    }
+    div.d-flex.col > a:not(:last-child) {
+        margin-right: 1.5rem;
+    }
+</style>
+{% endblock %}
