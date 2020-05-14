@@ -15,23 +15,25 @@
   </head>
   <body>
     {% include "common/navbar.html" %}
-    <div class="w-100 h-100">
-      <div class="pl-3 pr-3 pb-5 w-100">
+    <div class="w-100">
+      <div class="pl-3 pr-3 pb-5">
         <hr class="mt-0 mb-4" />
         {% block content %} 
         {% endblock %}
       </div>
-    {% include "common/footer.html" %}
+      {% include "common/footer.html" %}
     </div>
   </body>
   <style>
     html {
       overflow: hidden;
-      height: 100%;
     }
     body {
-      height: 100%;
-      overflow: auto;
+      height: 100vh;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-width: 320px;
     }
   </style>
 </html>
