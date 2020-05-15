@@ -43,8 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'budget',
     'crispy_forms',
-    'bootstrap4',
-    'mathfilters'
+    'mathfilters',
 ]
 
 LOGIN_URL = 'login'

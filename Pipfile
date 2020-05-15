@@ -8,11 +8,11 @@ flake8 = "*"
 autopep8 = "*"
 
 [packages]
-django = "*"
+django = "==3.0.6"
 django-crispy-forms = "*"
-django-bootstrap4 = "*"
 django-mathfilters = "*"
 python-dotenv = "*"
+sass-processor = "*"
 
 [requires]
 python_version = "3.8"
