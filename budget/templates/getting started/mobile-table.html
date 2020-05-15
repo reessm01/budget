@@ -1,0 +1,53 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load budget_tags %}
+{% load humanize %}
+{% block content %}
+    {% for entry in entries %}
+        <div class="d-flex bg-dark text-light w-100 p-2 justify-content-center">
+            <h4>
+                Entry: {{ forloop.counter }}
+            </h4>
+        </div>
+    <table class="table table-bordered">
+        {% for attribute in entry.get_attributes %}
+        <tr>
+            <th scope="row">{{ attribute }}</th>
+            {% if attribute == 'amount' %}
+            <td>${{ entry|get_obj_attr:attribute|intcomma }}</td>
+            {% else %}
+            <td>{{ entry|get_obj_attr:attribute }}</td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+    </table>
+{% endfor %}
+<form id="mobileForm" method="POST">
+    {% csrf_token %}
+    <div class="d-flex bg-dark text-light w-100 p-2 justify-content-center">
+        <h4>
+            New Entry
+        </h4>
+    </div>
+    <table style="table-layout: fixed;" class="table table-bordered w-100">
+        {% for field in form.visible_fields %}
+            <tr>
+                <th scope="row">{{ field.name }}</th>
+                {% if field.field.widget.input_type == 'checkbox' %}
+                <td>
+                    <div class="form-check text-center">
+                        {{ field }}
+                    </div>
+                </td>
+                {% else %}
+                <td>{{ field }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+    <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary mt-3">Add</button>
+    </div>
+</form>
+
+{% endblock %}
