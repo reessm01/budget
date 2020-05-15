@@ -27,3 +27,6 @@ Add:<br>
 {% block content %}<br>
 your_content_here<br>
 {% endblock %}<br>
+
+## Sass instructions
+- https://www.accordbox.com/blog/how-use-scsssass-your-django-project-npm-way/

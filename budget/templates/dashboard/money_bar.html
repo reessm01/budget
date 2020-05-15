@@ -3,24 +3,24 @@
 {% load static %}
 {% block content %}
 <div class="mb-3">
-    <div class="card p-4">
-    <h5 class="card-title">Money Bar</h5>
-    <h6 class="card-subtitle mb-2 text-muted">Displayed Check-In: {{check_in.date}}</h6>
+    <div class="card p-4 bg-dark">
+    <h5 class="card-title text-light">Money Bar</h5>
+    <h6 class="card-subtitle mb-2 text-light">Displayed Check-In: {{check_in.date}}</h6>
     <div class="row flex-row justify-content-between">
         <div class="d-flex pl-3 mb-1">
             <div class="d-flex align-items-center">
-                <span class="badge badge-warning mr-1" style="width: 15px; height:15px;"> </span>
-                <h6 class="mr-3" style="margin: auto;">Outbound: ${{total_outbound|intcomma}}</h6>
+                <span class="badge badge-light-accent mr-1" style="width: 15px; height:15px;"> </span>
+                <h6 class="mr-3 text-light" style="margin: auto;">Outbound: ${{total_outbound|intcomma}}</h6>
             <div class="d-flex align-items-center">
-                <span class="badge badge-primary mr-1" style="width: 15px; height:15px;"> </span>
-                <h6 style="margin: auto;">Remaining: ${{remaining_cash|intcomma}}</h6>
+                <span class="badge badge-dark-accent mr-1" style="width: 15px; height:15px;"> </span>
+                <h6 class="text-light" style="margin: auto;">Remaining: ${{remaining_cash|intcomma}}</h6>
             </div>
             </div>
         </div>
         </div>
         <div class="progress mb-3" style="height: 40px">
             <div 
-                class="progress-bar bg-warning" 
+                class="progress-bar bg-light-accent" 
                 role="progressbar" 
                 style="width: {{outbound}}%" 
                 aria-valuenow="25" 
@@ -28,7 +28,7 @@
                 aria-valuemax="100">
             </div>
             <div 
-                class="progress-bar bg-primary" 
+                class="progress-bar bg-dark-accent" 
                 role="progressbar" 
                 style="width: {{remaining_p}}%" 
                 aria-valuenow="20" 
