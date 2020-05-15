@@ -80,7 +80,8 @@ class Dashboard(TemplateView):
                 if criteria_met:
                     user.client.started = True
                     user.client.save()
-            except Exception:
+            except Exception as e:
+                print(e)
                 return HttpResponseServerError()
 
         if user.client.started:
@@ -136,6 +137,7 @@ class Dashboard(TemplateView):
                     'income_debt_ratio_chart': income_debt_ratio_chart
                 })
             except Exception as e:
+                print(e)
                 return HttpResponseServerError()
         else:
             return HttpResponseRedirect(reverse('getting_started'))
