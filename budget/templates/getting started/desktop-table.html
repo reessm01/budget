@@ -1,0 +1,56 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load get_obj_attr %}
+{% load humanize %}
+{% block content %}
+<div class="rounded-bottom shadowed">
+<table class="table">
+    <thead class="bg-dark text-light">
+        <tr>
+            <th scope="col">Item</th>
+            {% for field in form.visible_fields %}
+            <th scope="col">{{ field.name|capfirst }}</th>
+            {% endfor %}
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in entries %}
+        <tr>
+            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+            {% for attribute in entry.get_attributes %}
+            {% if attribute == 'amount' %}
+            <td>${{ entry|get_obj_attr:attribute|intcomma }}</td>
+            {% else %}
+            <td>{{ entry|get_obj_attr:attribute }}</td>
+            {% endif %}
+            {% endfor %}
+            <td>
+                <a href="/gettingstarted/{{end_point.lower}}/{{ entry.id }}">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <form id="desktopForm" method="POST">
+                {% csrf_token %}
+                <th scope="row" class="text-center border-bottom-left">New</th>
+                {% for field in form.visible_fields %}
+                {% if field.field.widget.input_type == 'checkbox' %}
+                <td>
+                    <div class="form-check">
+                        {{ field }}
+                    </div>
+                </td>
+                {% else %}
+                <td>{{ field }}</td>
+                {% endif %}
+                {% endfor %}
+                <td class="text-center border-bottom-right">
+                    <button type="submit" class="btn btn-primary m-auto">Add</button>
+                </td>
+            </form>
+        </tr>
+    </tbody>
+</table>
+</div>
+{% endblock %}

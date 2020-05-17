@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="card h-100">
-    <div class="card-body rounded bg-dark">
-        <h5 class="card-title text-light">Check-In</h5>
-        <h6 class="card-subtitle mb-2 {{subtitle_text_style}}">{{check_in.date}}</h6>
+    <div class="card-body rounded bg-dark shadowed">
+        <h4 class="card-title text-light">Check-In</h4>
+        <h5 class="card-subtitle mb-3 {{subtitle_text_style}}">{{check_in.date}}</h5>
         {% include "dashboard/check_in_info.html" %}
     </div>
 </div>
