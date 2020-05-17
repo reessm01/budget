@@ -1,9 +1,13 @@
-$theme-colors: (
-	"primary": #2062a0,
-	"light": #e3e3e6,
-	"dark": #151420,
-	"white-smoke": #e3e3e6,
-	"dark-accent": #6ca6c3,
-	"light-accent": #536a89,
+$theme-colors: ("primary": #2062a0,
+    "light": #e3e3e6,
+    "dark": #151420,
+    "white-smoke": #e3e3e6,
+    "dark-accent": #6ca6c3,
+    "light-accent": #536a89,
 );
+
+.shadowed {
+    box-shadow: 5px 10px 8px #888888;
+}
+
 @import "node_modules/bootstrap/scss/bootstrap";

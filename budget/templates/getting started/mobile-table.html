@@ -1,18 +1,20 @@
 {% load crispy_forms_tags %}
 {% load static %}
-{% load budget_tags %}
+{% load get_obj_attr %}
+{% load no_snake %}
 {% load humanize %}
 {% block content %}
     {% for entry in entries %}
-        <div class="d-flex bg-dark text-light w-100 p-2 justify-content-center">
+    <div class="shadowed rounded mb-4 p-0">
+        <div class="d-flex bg-dark text-light w-100 p-2 justify-content-center rounded-top">
             <h4>
                 Entry: {{ forloop.counter }}
             </h4>
         </div>
-    <table class="table table-bordered">
+    <table class="table" style="border-radius: 10px;">
         {% for attribute in entry.get_attributes %}
         <tr>
-            <th scope="row">{{ attribute }}</th>
+            <th scope="row">{{ attribute|no_snake|capfirst }}</th>
             {% if attribute == 'amount' %}
             <td>${{ entry|get_obj_attr:attribute|intcomma }}</td>
             {% else %}
@@ -21,18 +23,20 @@
             {% endfor %}
         </tr>
     </table>
+</div>
 {% endfor %}
 <form id="mobileForm" method="POST">
     {% csrf_token %}
+    <div class="shadowed rounded">
     <div class="d-flex bg-dark text-light w-100 p-2 justify-content-center">
         <h4>
             New Entry
         </h4>
     </div>
-    <table style="table-layout: fixed;" class="table table-bordered w-100">
+    <table style="table-layout: fixed;" class="table w-100">
         {% for field in form.visible_fields %}
             <tr>
-                <th scope="row">{{ field.name }}</th>
+                <th scope="row">{{ field.name|no_snake|capfirst }}</th>
                 {% if field.field.widget.input_type == 'checkbox' %}
                 <td>
                     <div class="form-check text-center">
@@ -45,6 +49,7 @@
             </tr>
         {% endfor %}
     </table>
+    </div>
     <div class="d-flex justify-content-end">
         <button type="submit" class="btn btn-primary mt-3">Add</button>
     </div>
