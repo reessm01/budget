@@ -1,6 +1,9 @@
 .shadowed {
   box-shadow: 5px 10px 8px #888888; }
 
+.cursor-pointer {
+  cursor: pointer; }
+
 /*!
  * Bootstrap v4.5.0 (https://getbootstrap.com/)
  * Copyright 2011-2020 The Bootstrap Authors

@@ -14,7 +14,7 @@
             <th scope="col">Action</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody class="bg-white">
         {% for entry in entries %}
         <tr>
             <th scope="row" class="text-center">{{ forloop.counter }}</th>
@@ -26,7 +26,9 @@
             {% endif %}
             {% endfor %}
             <td>
-                <a href="/gettingstarted/{{end_point.lower}}/{{ entry.id }}">Edit</a>
+                <div class="d-flex w-100 justify-content-center">
+                    <a class="fas fa-edit text-primary cursor-pointer"></a>
+                </div>
             </td>
         </tr>
         {% endfor %}

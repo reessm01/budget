@@ -10,4 +10,8 @@ $theme-colors: ("primary": #2062a0,
     box-shadow: 5px 10px 8px #888888;
 }
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
 @import "node_modules/bootstrap/scss/bootstrap";
