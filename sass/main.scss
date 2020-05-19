@@ -1,10 +1,15 @@
 $theme-colors: ("primary": #2062a0,
     "light": #e3e3e6,
     "dark": #151420,
-    "white-smoke": #e3e3e6,
+    "white-smoke": #F5F5F5,
     "dark-accent": #6ca6c3,
     "light-accent": #536a89,
+    "disabled": #C0C0C0,
 );
+
+.d-none {
+    display: none !important;
+}
 
 .shadowed {
     box-shadow: 5px 10px 8px #888888;
