@@ -5,13 +5,13 @@
 {% load humanize %}
 {% block content %}
     {% for entry in entries %}
-    <div class="shadowed rounded mb-4 p-0">
+    <div class="shadowed rounded bg-white mb-4 p-0">
         <div class="d-flex bg-dark text-light w-100 p-2 justify-content-center rounded-top">
             <h4>
                 Entry: {{ forloop.counter }}
             </h4>
         </div>
-    <table class="table" style="border-radius: 10px;">
+    <table class="table bg-white" style="border-radius: 10px;">
         {% for attribute in entry.get_attributes %}
         <tr>
             <th scope="row">{{ attribute|no_snake|capfirst }}</th>
@@ -33,7 +33,7 @@
             New Entry
         </h4>
     </div>
-    <table style="table-layout: fixed;" class="table w-100">
+    <table style="table-layout: fixed;" class="table bg-white w-100">
         {% for field in form.visible_fields %}
             <tr>
                 <th scope="row">{{ field.name|no_snake|capfirst }}</th>

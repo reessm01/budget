@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, reverse
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError
 from datetime import timedelta
 from calendar import monthrange
 from decimal import Decimal
@@ -145,7 +145,8 @@ class InitCheckinPreferences(TemplateView):
                             time_delta = self.get_time_delta(
                                 preferences, check_ins[-1]['date'])
                             next_date = check_ins[-1]['date'] + time_delta
-                            account_balance = check_ins[-1]['projected_balance'] - check_ins[-1]['outgoing_balance']
+                            account_balance = check_ins[-1]['projected_balance'] - \
+                                check_ins[-1]['outgoing_balance']
                         else:
                             account_balance = preferences.account.amount
                         check_ins.append(self.account_balance_projection(
@@ -162,11 +163,71 @@ class InitCheckinPreferences(TemplateView):
                             outgoing_balance=check_in['outgoing_balance']
                         )
                 except Exception:
-                    return HttpResponseServerError()     
+                    return HttpResponseServerError()
 
             return HttpResponseRedirect(reverse('dashboard'))
         else:
             return HttpResponseRedirect(reverse('check_in'))
+
+
+class GettingStartedNewEntry(TemplateView):
+    page = 'getting started/getting_started.html'
+
+    def create_entry(self, data, client, end_point):
+        if end_point == 'income':
+            Income.objects.create(
+                owner=client,
+                title=data['title'],
+                amount=data['amount'],
+                frequency=data['frequency'],
+                last_paid=data['last_paid']
+            )
+        elif end_point == 'bills':
+            Bill.objects.create(
+                owner=client,
+                title=data['title'],
+                amount=data['amount'],
+                frequency=data['frequency'],
+                last_paid=data['last_paid'],
+                weekdays_only=data['weekdays_only']
+            )
+        elif end_point == 'accounts':
+            Account.objects.create(
+                owner=client,
+                title=data['title'],
+                amount=data['amount'],
+                account_type=data['account_type']
+            )
+
+    def get_filled_form(self, end_point, data):
+        form_options = {
+            'income': IncomeForm(data),
+            'bills': BillForm(data),
+            'accounts': AccountForm(data)
+        }
+
+        return form_options[end_point]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+
+        if user:
+            try:
+                end_point = request.path.split('/')[-1]
+                redirect_path = '/gettingstarted/{0}'.format(end_point)
+
+                form = self.get_filled_form(end_point, request.POST)
+                if form.is_valid():
+                    client = Client.objects.get(user=user)
+                    data = form.cleaned_data
+                    self.create_entry(data, client, end_point)
+
+                    return HttpResponseRedirect(redirect_path)
+            except Exception as e:
+                print(e)
+                return HttpResponseServerError()
+
+        return HttpResponseRedirect(reverse('getting_started'))
 
 
 class GettingStarted(TemplateView):
@@ -208,6 +269,38 @@ class GettingStarted(TemplateView):
 
         return destinations[end_point]
 
+    def get_model(self, end_point, entry_id, client):
+        entry_options = {
+            'income': Income.objects.filter(owner=client).filter(id=entry_id),
+            'bills': Bill.objects.filter(owner=client).filter(id=entry_id),
+            'accounts': Account.objects.filter(owner=client).filter(id=entry_id)
+        }
+        return entry_options[end_point]
+
+    def get_a_form(self, end_point, initial_data):
+        if end_point == 'income':
+            initial_choice = initial_data['frequency_id']
+            new_choice = {
+                'frequency': Frequency.objects.filter(pk=initial_choice)[0]}
+            initial_data.update(new_choice)
+
+            return IncomeForm(initial=initial_data)
+        elif end_point == 'bills':
+            initial_choice = initial_data['frequency_id']
+            new_choice = {
+                'frequency': Frequency.objects.filter(pk=initial_choice)[0]}
+            initial_data.update(new_choice)
+
+            return BillForm(initial=initial_data)
+        elif end_point == 'accounts':
+
+            initial_choice = initial_data['account_type_id']
+            new_choice = {
+                'account_type': AccountType.objects.filter(pk=initial_choice)[0]}
+            initial_data.update(new_choice)
+
+            return AccountForm(initial=initial_data)
+
     def get(self, request, *args, **kwargs):
         user = request.user
         end_point = request.path.split('/')[-1]
@@ -222,11 +315,18 @@ class GettingStarted(TemplateView):
                 next_destination = self.get_next_destination(end_point)
                 previous_destination = self.get_prev_destination(end_point)
 
+                forms = []
+                for entry in entries:
+                    init_data = self.get_model(
+                        end_point, entry.pk, user.client)
+                    forms.append(self.get_a_form(
+                        end_point, init_data.values()[0]))
                 return render(request, self.page, {
                     'title': title,
                     'user': user,
                     'form': form,
                     'entries': entries,
+                    'forms': forms,
                     'button_label': button_label,
                     'end_point': end_point.title(),
                     'next_destination': next_destination,
@@ -245,126 +345,6 @@ class GettingStarted(TemplateView):
         }
 
         return form_options[end_point]
-
-    def create_entry(self, data, client, end_point):
-        if end_point == 'income':
-            Income.objects.create(
-                owner=client,
-                title=data['title'],
-                amount=data['amount'],
-                frequency=data['frequency'],
-                last_paid=data['last_paid']
-            )
-        elif end_point == 'bills':
-            Bill.objects.create(
-                owner=client,
-                title=data['title'],
-                amount=data['amount'],
-                frequency=data['frequency'],
-                last_paid=data['last_paid'],
-                weekdays_only=data['weekdays_only']
-            )
-        elif end_point == 'accounts':
-            Account.objects.create(
-                owner=client,
-                title=data['title'],
-                amount=data['amount'],
-                account_type=data['account_type']
-            )
-
-    def post(self, request, *args, **kwargs):
-        user = request.user
-
-        if user:
-            try:
-                end_point = request.path.split('/')[-1]
-                form = self.get_filled_form(end_point, request.POST)
-
-                if form.is_valid():
-                    client = Client.objects.get(user=user)
-                    data = form.cleaned_data
-
-                    self.create_entry(data, client, end_point)
-
-                    return HttpResponseRedirect(request.path)
-            except Exception:
-                return HttpResponseServerError()
-
-        return HttpResponseRedirect(reverse('getting_started'))
-
-
-class GettingStartedEdit(TemplateView):
-    page = 'getting started/getting_started_edit.html'
-
-    def get_form(self, end_point, initial_data):
-
-        if end_point == 'income':
-            initial_choice = initial_data['frequency_id']
-            new_choice = {
-                'frequency': Frequency.objects.filter(pk=initial_choice)[0]}
-            initial_data.update(new_choice)
-
-            return IncomeForm(initial=initial_data)
-        elif end_point == 'bills':
-            initial_choice = initial_data['frequency_id']
-            new_choice = {
-                'frequency': Frequency.objects.filter(pk=initial_choice)[0]}
-            initial_data.update(new_choice)
-            return BillForm(initial=initial_data)
-        elif end_point == 'accounts':
-
-            initial_choice = initial_data['account_type_id']
-            new_choice = {
-                'account_type': AccountType.objects.filter(pk=initial_choice)[0]}
-            initial_data.update(new_choice)
-
-            return AccountForm(initial=initial_data)
-
-    def get(self, request, id, *args, **kwargs):
-        user = request.user
-        end_point = request.path.split('/')[-2]
-
-        if user:
-            client = Client.objects.get(user=user)
-            if not client.started:
-                initial_data = self.get_model(end_point, id, user.client)
-                if initial_data.exists():
-                    form = self.get_form(end_point, initial_data.values()[0])
-
-                    title = end_point.title()
-
-                else:
-                    return HttpResponseRedirect(f'/gettingstarted/{end_point}')
-
-            return render(request, self.page, {
-                'title': title,
-                'user': user,
-                'form': form,
-                'end_point': end_point.title(),
-
-            })
-        else:
-            return HttpResponseRedirect(reverse('login'))
-
-    def post(self, request, id, *args, **kwargs):
-        user = request.user
-
-        if user:
-            try:
-                end_point = request.path.split('/')[-2]
-                redirect_path = request.path.split('/')[:-1]
-                form = self.get_filled_form(end_point, request.POST)
-
-                if form.is_valid():
-                    client = Client.objects.get(user=user)
-                    data = form.cleaned_data
-
-                    self.change_info(data, client, end_point, id)
-                    return HttpResponseRedirect("/".join(redirect_path))
-                else:
-                    return HttpResponseRedirect("/".join(redirect_path))
-            except Exception:
-                return HttpResponseServerError()
 
     def change_info(self, data, client, end_point, id):
         if end_point == 'income':
@@ -394,18 +374,43 @@ class GettingStartedEdit(TemplateView):
                 account_type=data['account_type']
             )
 
-    def get_model(self, end_point, entry_id, client):
-        entry_options = {
-            'income': Income.objects.filter(owner=client).filter(id=entry_id),
-            'bills': Bill.objects.filter(owner=client).filter(id=entry_id),
-            'accounts': Account.objects.filter(owner=client).filter(id=entry_id)
-        }
-        return entry_options[end_point]
+    def delete_entry(self, id, end_point):
+        if end_point == 'income':
+            Income.objects.get(pk=id).delete()
+        elif end_point == 'bills':
+            Bill.objects.get(pk=id).delete()
+        elif end_point == 'accounts':
+            Account.objects.get(pk=id).delete()
 
-    def get_filled_form(self, end_point, data):
-        form_options = {
-            'income': IncomeForm(data),
-            'bills': BillForm(data),
-            'accounts': AccountForm(data)
-        }
-        return form_options[end_point]
+    def delete(self, request, id, *args, **kwargs):
+        user = request.user
+        if user:
+            try:
+                end_point = request.path.split('/')[-2]
+                print(end_point)
+                self.delete_entry(id, end_point)
+                return HttpResponse(200)
+            except Exception as e:
+                print(e)
+                return HttpResponseServerError()
+
+        return HttpResponseRedirect(reverse('getting_started'))
+
+    def post(self, request, id, *args, **kwargs):
+        user = request.user
+        if user:
+            try:
+                end_point = request.path.split('/')[-2]
+                form = self.get_filled_form(end_point, request.POST)
+                if form.is_valid():
+                    client = Client.objects.get(user=user)
+                    data = form.cleaned_data
+
+                    self.change_info(data, client, end_point, int(id))
+                    redirect = '/'.join(request.path.split('/')[:-1])
+                    return HttpResponseRedirect(redirect)
+            except Exception as e:
+                print(e)
+                return HttpResponseServerError()
+
+        return HttpResponseRedirect(reverse('getting_started'))

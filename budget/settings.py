@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'budget',
     'crispy_forms',
     'mathfilters',
+    'fontawesome_5'
 ]
 
 LOGIN_URL = 'login'

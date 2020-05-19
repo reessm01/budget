@@ -6,9 +6,9 @@
         <h1>Getting Started:</h1>
         <h3>{{ title }}</h3>
     </div>
-    <desktop-table class="desktop-only">
+    <div class="desktop-only">
         {% include "getting started/desktop-table.html" %}
-    </desktop-table>
+    </div>
     <div class="mobile-only">
         {% include "getting started/mobile-table.html" %}
     </div>
@@ -38,10 +38,8 @@
         }
 
         input[type=checkbox] {
-            -ms-transform: scale(2); /* IE */
-            -moz-transform: scale(2); /* FF */
-            -webkit-transform: scale(2); /* Safari and Chrome */
-            -o-transform: scale(2); /* Opera */
+            margin: 0rem !important;
+            padding: 0rem !important;
         }
 
         .custom-select {
