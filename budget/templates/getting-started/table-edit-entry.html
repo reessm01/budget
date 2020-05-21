@@ -1,0 +1,38 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load get_obj_attr %}
+{% load zip_lists %}
+{% load no_snake %}
+{% load humanize %}
+{% block content %}
+<form id="edit-form-{{entry.pk}}" method="POST" action="/gettingstarted/{{title|lower}}/{{entry.pk}}">
+    <div class="row py-3 edit-row bg-white">
+        {% csrf_token %}
+        <div class="col-12 col-md-1 p-0 cell-height d-flex border justify-content-center align-items-center">
+            {{forloop.counter}}
+        </div>
+        {% for fld in f.visible_fields %}
+        <div class="col-12 col-md d-flex justify-content-center cell-height p-0 border">{{ fld }}</div>
+        {% endfor %}
+        <div class="col-12 col-md-2 cell-height d-flex border justify-content-between align-items-center">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-6 d-flex justify-content-center">
+                        <button type="button" onclick="initDelete({{entry.pk}})"
+                            class="btn btn-danger fas fa-trash-alt"></button>
+                    </div>
+                    <div class="col-6 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary fas fa-save"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="alerts-container-{{entry.pk}}" class="d-none col-12 pt-5">
+            {% include "getting-started/alerts.html" %}
+        </div>
+    </div>
+    <style>
+        
+    </style>
+</form>
+{% endblock %}

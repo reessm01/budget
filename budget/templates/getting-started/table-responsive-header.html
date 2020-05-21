@@ -1,0 +1,14 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load get_obj_attr %}
+{% load zip_lists %}
+{% load no_snake %}
+{% load humanize %}
+{% block content %}
+{% if forloop.counter == 0 %}
+{% else %}
+<div class="row bg-dark text-light d-md-none">
+    {% endif %}
+    {% include "getting-started/table-header-common.html" %}
+</div>
+{% endblock %}
