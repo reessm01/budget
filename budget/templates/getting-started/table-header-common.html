@@ -1,0 +1,21 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load get_obj_attr %}
+{% load zip_lists %}
+{% load no_snake %}
+{% load humanize %}
+{% block content %}
+<div class="col-12 col-md-1 border cell-height d-flex align-items-center justify-content-center">
+    <span>Item</span>
+</div>
+{% for field in form.visible_fields %}
+<div class="col-12 col-md border cell-height d-flex align-items-center justify-content-center text-center">
+    <span>{{ field.name|title|no_snake }}</span>
+    <i class="fas fa-question-circle position-top-right" style="font-size: 0.75rem;"></i>
+</div>
+{% endfor %}
+<div class="col-12 col-md-2 border cell-height d-flex align-items-center justify-content-center">
+    <span>Action</span>
+    <i class="fas fa-question-circle position-top-right" style="font-size: 0.75rem;"></i>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load get_obj_attr %}
+{% load zip_lists %}
+{% load no_snake %}
+{% load humanize %}
+{% block content %}
+<form method="POST" action="/gettingstarted/new/{{title|lower}}">
+    <div class="row py-3 edit-row rounded-bottom">
+        {% csrf_token %}
+        <div class="col-12 col-md-1 border d-flex cell-height flex-column justify-content-center text-center">
+            <i class="fas fa-plus-square text-dark wrench"></i>
+        </div>
+        {% for field in form.visible_fields %}
+        <div class="col-12 col-md border d-flex justify-content-center cell-height p-0">{{ field }}</div>
+        {% endfor %}
+        <div class="col-12 col-md-2 border d-flex cell-height justify-content-center align-items-center">
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary fas fa-save"></button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -107,3 +107,4 @@ venv.bak/
 *.pyc
 .DS_Store
 node_modules/
+budget/static/compiled/

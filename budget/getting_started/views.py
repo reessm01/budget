@@ -75,7 +75,7 @@ class InitCheckinPreferences(TemplateView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        page = 'getting started/init_check_preferences.html'
+        page = 'getting-started/init_check_preferences.html'
         form = CheckInPreferencesForm(client=user.client)
 
         if not user.client.started:
@@ -171,7 +171,7 @@ class InitCheckinPreferences(TemplateView):
 
 
 class GettingStartedNewEntry(TemplateView):
-    page = 'getting started/getting_started.html'
+    page = 'getting-started/getting_started.html'
 
     def create_entry(self, data, client, end_point):
         if end_point == 'income':
@@ -231,7 +231,7 @@ class GettingStartedNewEntry(TemplateView):
 
 
 class GettingStarted(TemplateView):
-    page = 'getting started/getting_started.html'
+    page = 'getting-started/getting_started.html'
 
     def get_form(self, end_point):
         form_options = {
@@ -387,7 +387,6 @@ class GettingStarted(TemplateView):
         if user:
             try:
                 end_point = request.path.split('/')[-2]
-                print(end_point)
                 self.delete_entry(id, end_point)
                 return HttpResponse(200)
             except Exception as e:
