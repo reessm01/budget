@@ -23,3 +23,11 @@ function getCookie(name) {
 function getEndPoint() {
     return document.URL.split('/').slice(-1)[0]
 }
+
+function enableToolTips() {
+	$('[data-toggle="tooltip"]').tooltip();
+}
+
+$(document).ready(function(){ 
+	enableToolTips();
+})
