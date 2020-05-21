@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"compile:css": "node-sass -o budget/static/css sass",
-		"compile:css:watch": "node-sass -o budget/static/css sass --watch"
+		"compile:css": "node-sass -o budget/static/compiled/css sass",
+		"compile:css:watch": "node-sass -o budget/static/compiled/css sass --watch"
 	},
 	"author": "",
 	"license": "ISC",
