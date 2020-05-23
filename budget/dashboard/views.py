@@ -121,7 +121,7 @@ class Dashboard(TemplateView):
                 debt_ratio_data = self.get_debt_ratio(bills_2, income)
                 debt_ratio_chart = {'title': 'debt_ratios', 'data': bills_data}
                 income_debt_ratio_chart = {'title': 'income_to_debt_ratios', 'data': debt_ratio_data}
-                print(debt_ratio_chart)
+                
                 return render(request, page, {
                     'outbound': outbound,
                     'remaining_p': remaining,
