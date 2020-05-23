@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'budget',
     'crispy_forms',
     'mathfilters',
-    'fontawesome_5'
+    'fontawesome_5',
+    'django_components',
 ]
 
 LOGIN_URL = 'login'
@@ -75,6 +76,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'builtins': [
+                # 'django_components.templatetags.component_tags',
+            ]
         },
     },
 ]

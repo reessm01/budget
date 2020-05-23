@@ -13,6 +13,7 @@ django-crispy-forms = "*"
 django-mathfilters = "*"
 python-dotenv = "*"
 django-fontawesome-5 = "*"
+django-reusable-components = "*"
 
 [requires]
 python_version = "3.8"

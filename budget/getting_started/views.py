@@ -78,7 +78,7 @@ class InitCheckinPreferences(TemplateView):
         page = 'getting-started/init_check_preferences.html'
         form = CheckInPreferencesForm(client=user.client)
 
-        if not user.client.started:
+        if True:
             return render(request, page, {
                 'title': 'Check-in Configuration',
                 'user': user,
@@ -168,6 +168,14 @@ class InitCheckinPreferences(TemplateView):
             return HttpResponseRedirect(reverse('dashboard'))
         else:
             return HttpResponseRedirect(reverse('check_in'))
+
+
+class GettingStartedLanding(TemplateView):
+    page = 'getting-started/landing.page.html'
+
+    def get(self, request, *args, **kwargs):
+
+        return render(request, self.page, {})
 
 
 class GettingStartedNewEntry(TemplateView):
