@@ -1,0 +1,10 @@
+  {
+      "compilerOptions": {
+          "outDir": "./budget/static/compiled/js"
+      },
+      "include": ["./budget/templates/"],
+      "exclude": [
+          "node_modules",
+          "** /*.spec.ts"
+      ]
+  }
