@@ -4,29 +4,15 @@
 - clone repo `git clone {repo_link}`
 - `pipenv install`
 - `pipenv shell`
-- `python manage.py bootstrap_account_type`
-- `python manage.py bootstrap_frequency`
-- `python manage.py makemigrations` 
-- `python manage.py migrate`
+- `python manage.py init_project`
+Note: init_project might error out when running `npm run compile:tsc` if
+there are no .ts files in the project.
 
-## Commands
-### bootstrap_model
-- Run `python manage.py bootstrap_model model_name_here` to initialize new model
-- Creates new folder & files common for models and adds the url_patterns to baseapps urls.py folder
+## Django Commands
+### init_project
+- Run `python manage.py init_project` to run a series of commands to initalize the project
 
-### bootstrap_personality
-- Run `python manage.py bootstrap_account_type` to populate the AccountType table with predefined values
-
-### 
-- Run `python manage.py bootstrap_frequency` to populate the Frequency table with predefined values
-
-## Templates
-Add:<br>
-{% extends 'common/base.html' %}<br>
-{% load crispy_forms_tags %}<br>
-{% block content %}<br>
-your_content_here<br>
-{% endblock %}<br>
-
-## Sass instructions
-- https://www.accordbox.com/blog/how-use-scsssass-your-django-project-npm-way/
+## Dev Node Commands
+To automatically compile scss or ts files run:
+- compile:tsc:watch
+- compile:css:watch
