@@ -4,13 +4,17 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"compile:css": "node-sass -o budget/static/compiled/css sass",
-		"compile:css:watch": "node-sass -o budget/static/compiled/css sass --watch"
+		"compile:css": "sass budget/templates:budget/static/compiled/css --style=compressed --no-source-map",
+		"compile:css:watch": "sass --watch budget/templates:budget/static/compiled/css compressed",
+		"compile:ts": "tsc",
+		"compile:ts:watch": "tsc --watch",
+		"deploy": "npm i && npm run compile:css && npm run compile:ts"
 	},
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
 		"bootstrap": "^4.5.0",
-		"node-sass": "^4.14.1"
+		"typescript": "^3.9.3",
+		"sass": "^1.26.5"
 	}
 }
