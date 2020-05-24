@@ -1,0 +1,34 @@
+chart {
+    .carousel-control-next-icon:after {
+        content: '>';
+        font-size: 35px;
+        color: red;
+    }
+
+    .carousel-control-prev-icon:after {
+        content: '<';
+        font-size: 35px;
+        color: red;
+    }
+
+    .carousel .carousel-indicators li {
+        background-color: red;
+    }
+
+    .carousel .carousel-indicators .active {
+        background-color: #444;
+    }
+
+    .carousel-indicators {
+        margin-top: 70px;
+    }
+
+    .carousel-inner {
+        padding-bottom: 70px;
+    }
+
+    .chart {
+        height: 400px;
+        width: 100%;
+    }
+}
