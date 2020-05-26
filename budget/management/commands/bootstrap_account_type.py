@@ -22,10 +22,12 @@ class Command(BaseCommand):
 
         for account_type in account_types:
             try:
-                AccountType.objects.create(
-                    title=account_type,
-                )
-                added.append(account_type)
+                entry = AccountType.objects.filter(title=account_type)
+                if not entry.exists():
+                    AccountType.objects.create(
+                        title=account_type,
+                    )
+                    added.append(account_type)
             except IntegrityError:
                 continue
 
