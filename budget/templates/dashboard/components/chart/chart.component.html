@@ -3,7 +3,7 @@
 {% load sekizai_tags %}
 
 {% block content %}
-<chart>
+<chart-container>
 {% addtoblock 'js' %}
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <script type="module" src="{% static 'js/dashboard/components/chart/chart.js' %}"></script>
@@ -62,5 +62,5 @@
         </a>
     </div>
     </div>
-</chart>
+</chart-container>
 {% endblock %}

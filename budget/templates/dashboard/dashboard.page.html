@@ -4,7 +4,7 @@
 {% load get_obj_attr %}
 {% load humanize %}
 {% block content %}
-<dashboard>
+<dashboard-container>
     <h1>Dashboard</h1>
     {% include "dashboard/components/money_bar/money_bar.component.html" %}
     <div class="row">
@@ -15,5 +15,5 @@
             {% include "dashboard/components/chart/chart.component.html" %}
         </div>
     </div>
-</dashboard>
+</dashboard-container>
 {% endblock %}

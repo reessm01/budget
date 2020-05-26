@@ -1,4 +1,4 @@
-chart {
+chart-container {
     .carousel-control-next-icon:after {
         content: '>';
         font-size: 35px;
@@ -12,11 +12,11 @@ chart {
     }
 
     .carousel .carousel-indicators li {
-        background-color: red;
+        background-color: #444;
     }
 
     .carousel .carousel-indicators .active {
-        background-color: #444;
+        background-color: red;
     }
 
     .carousel-indicators {

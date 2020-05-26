@@ -75,7 +75,7 @@ class InitCheckinPreferences(TemplateView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        page = 'getting-started/init_check_preferences.html'
+        page = 'getting-started/components/archive/init_check_preferences.component.html'
         form = CheckInPreferencesForm(client=user.client)
 
         if True:
@@ -179,7 +179,7 @@ class GettingStartedLanding(TemplateView):
 
 
 class GettingStartedNewEntry(TemplateView):
-    page = 'getting-started/getting_started.html'
+    page = 'getting-started/getting_started.page.html'
 
     def create_entry(self, data, client, end_point):
         if end_point == 'income':
@@ -239,7 +239,7 @@ class GettingStartedNewEntry(TemplateView):
 
 
 class GettingStarted(TemplateView):
-    page = 'getting-started/getting_started.html'
+    page = 'getting-started/getting_started.page.html'
 
     def get_form(self, end_point):
         form_options = {

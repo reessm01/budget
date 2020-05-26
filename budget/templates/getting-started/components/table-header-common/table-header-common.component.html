@@ -1,0 +1,31 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load get_obj_attr %}
+{% load zip_lists %}
+{% load no_snake %}
+{% load humanize %}
+{% load sekizai_tags %}
+
+{% block content %}
+
+{% addtoblock 'js' %}
+    <script src="{% static 'js/getting-started/components/table-header-common/table-header-common.js' %}"></script>
+{% endaddtoblock %}
+{% addtoblock 'css' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'compiled/css/getting-started/components/table-header-common/table-header-common.component.css' %}"></link>
+{% endaddtoblock %}
+<div class="col-12 col-md-1 border cell-height d-flex align-items-center justify-content-center">
+    <span>Item</span>
+</div>
+{% for field in form.visible_fields %}
+<div class="col-12 col-md border cell-height d-flex align-items-center justify-content-center text-center">
+    <span>{{ field.name|title|no_snake }}</span>
+    <i class="fas fa-question-circle position-top-right tooltip-{{field.name}} cursor-pointer help-icon"
+        data-toggle="tooltip" data-placement="top" title=""></i>
+</div>
+{% endfor %}
+<div class="col-12 col-md-2 border cell-height d-flex align-items-center justify-content-center">
+    <span>Action</span>
+    <i class="fas fa-question-circle position-top-right tooltip-action cursor-pointer help-icon"></i>
+</div>
+{% endblock %}

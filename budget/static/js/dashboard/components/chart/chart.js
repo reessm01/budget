@@ -1,4 +1,6 @@
-// modules already loaded in browser: chartjs, jquery
+//  modules already loaded in browser:
+// 		@component: chartjs,
+// 		@base: jquery
 
 export class ChartClient {
 	tracker = 0;

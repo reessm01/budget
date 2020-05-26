@@ -1,6 +1,12 @@
 {% extends 'common/base.page.html' %}
+{% load sekizai_tags %}
+{% load static %}
 
 {% block content %}
+<settings-landing-page>
+{% addtoblock 'css' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'compiled/css/getting-started/landing.page.css' %}"></link>
+{% endaddtoblock %}
 <h1>Account Settings</h1>
 <p>Select One:</p>
 <div class="container">
@@ -41,18 +47,5 @@
         </div>
     </div>
 </div>
-<style>
-    .config-card {
-        width: 12.5rem;
-        height: 12.5rem;
-    }
-
-    .icon {
-        font-size: 4rem;
-    }
-
-    .button-borders {
-        border-radius: 0.75rem !important;
-    }
-</style>
+</settings-landing-page>
 {% endblock %}
