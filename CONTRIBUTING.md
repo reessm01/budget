@@ -3,22 +3,21 @@
 ## Front-end
 1. Unless they are components, all pages should extend `base.page.html`
 2. Whenever possible make components [reusable components](https://pypi.org/project/django-reusable-components/)
-3. Page or component level ts files should be in the same directory as its matching html file unless its a core or common script.
+3. Page or component level js files should be in the same directory as its matching html file unless its a core or common script.
 4. Minimize global scope whenever possible.
 5. Bootstrap should be used extensively.
-6. Inline scripts or styles need to be ported to their own respective files.
+6. Inline scripts or styles need to be ported to their own respective files whenever possible.
 7. SASS for styling
-8. Typescript for scripts
+8. Javascript for scripts (typescript integrations TBD)
 9. Based on how the compiler works static/compiled/ folder follows the directory hierarchy.
 Example:
 - `templates/common/main.scss` can be found in
 - `static/compiled/common/main.css`
-or
-- `templates/common/main.ts` can be found in
-- `static/compile/common/main.js`
 - django template syntax looks like:
-`{% static 'compiled/common/main.css' %}` or `{% static 'compiled/common/main.js' %}`
-10. Make use of block tags `additional_styles` & `additional_scripts` provided by base.page.html
+`{% static 'compiled/common/main.css' %}` or `{% static 'js/common/main.js' %}`
+10. Attach all css & js tags to block tags:
+- {% addtoblock 'css' %} <link></link>{% endaddtoblock %}
+- {% addtoblock 'js' %}<script></script>{% endaddtoblock %}
 11. Naming conventions:
 - pages (direct extensions of `base.page.html`) to be named `pageName.page.html`
 - components to be named `componentName.component.html`

@@ -61,7 +61,7 @@ class Dashboard(TemplateView):
             'label': 'income'}]
 
     def get(self, request, *args, **kwargs):
-        page = 'dashboard/dashboard.html'
+        page = 'dashboard/dashboard.page.html'
         user = request.user
 
         if not user.client.started:

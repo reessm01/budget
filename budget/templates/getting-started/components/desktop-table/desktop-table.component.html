@@ -1,0 +1,49 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load get_obj_attr %}
+{% load zip_lists %}
+{% load no_snake %}
+{% load humanize %}
+{% load sekizai_tags %}
+
+{% block content %}
+<desktop-table>
+    {% addtoblock 'css' %}
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="{% static 'compiled/css/getting-started/components/desktop-table/desktop-table.component.css' %}"/>
+    {% endaddtoblock %}
+    {% addtoblock 'js' %}
+        <script src="{% static 'js/getting-started/components/desktop-table/desktop-table.js' %}"></script>
+    {% endaddtoblock %}
+    <div class="container-fluid shadowed">
+        {% for entry, f in entries|zip_lists:forms %}
+        <div class="row bg-white" id="form-{{forloop.counter}}">
+            <div class="col-5 col-md-12">
+                {% if forloop.counter == 1 %}
+                {% include "getting-started/components/table-header/table-header.component.html" %}
+                {% else %}
+                {% include "getting-started/components/table-responsive-header/table-responsive-header.component.html"%}
+                {% endif %}
+            </div>
+            <div class="col-7 col-md-12">
+                {% include "getting-started/components/table-edit-entry/table-edit-entry.component.html" %}
+            </div>
+        </div>
+        <div class="row bg-dark border d-md-none" style="height: 0.5rem;"></div>
+        {% endfor %}
+        <div class="row border">
+            <div class="col-5 col-md-12">
+                {% include "getting-started/components/table-responsive-header/table-responsive-header.component.html" %}
+            </div>
+            <div class="col-7 col-md-12">
+                {% include "getting-started/components/table-new-entry/table-new-entry.component.html" %}
+            </div>
+        </div>
+    </div>
+<style>
+    
+</style>
+</desktop-table>
+{% endblock %}

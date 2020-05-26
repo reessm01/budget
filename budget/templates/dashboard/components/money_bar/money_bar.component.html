@@ -1,28 +1,33 @@
 {% load crispy_forms_tags %}
 {% load humanize %}
 {% load static %}
+{% load sekizai_tags %}
 {% block content %}
+<money-bar>
 <div class="mb-3">
+    {% addtoblock 'css' %}
+        <link rel="stylesheet" type="text/css" href="{% static 'compiled/css/dashboard/components/money_bar/money_bar.component.css' %}"></link>
+    {% endaddtoblock %}
     <div class="card p-4 bg-dark shadowed">
     <h4 class="card-title text-light">Money Bar</h4>
     <h6 class="card-subtitle mb-3 text-light">Displayed Check-In: {{check_in.date}}</h6>
     <div class="row flex-row justify-content-between">
         <div class="d-flex pl-3 mb-1">
             <div class="d-flex align-items-center">
-                <span class="badge badge-light-accent mr-1" style="width: 15px; height:15px;"> </span>
-                <h6 class="mr-3 text-light" style="margin: auto;">Outbound: ${{total_outbound|intcomma}}</h6>
+                <span class="badge badge-light-accent mr-1 legend"> </span>
+                <h6 class="mr-3 text-light margin-auto">Outbound: ${{total_outbound|intcomma}}</h6>
             <div class="d-flex align-items-center">
-                <span class="badge badge-dark-accent mr-1" style="width: 15px; height:15px;"> </span>
-                <h6 class="text-light" style="margin: auto;">Remaining: ${{remaining_cash|intcomma}}</h6>
+                <span class="badge badge-dark-accent mr-1 legend"> </span>
+                <h6 class="text-light margin-auto">Remaining: ${{remaining_cash|intcomma}}</h6>
             </div>
             </div>
         </div>
         </div>
-        <div class="progress mb-3" style="height: 40px">
+        <div class="progress mb-3 container-progress-bar">
             <div 
                 class="progress-bar bg-light-accent" 
                 role="progressbar" 
-                style="width: {{outbound}}%" 
+                style="width: {{outbound}}%"
                 aria-valuenow="25" 
                 aria-valuemin="0" 
                 aria-valuemax="100">
@@ -52,4 +57,5 @@
     {% endif %}
     </div>
     </div>
+</money-bar>
 {% endblock %}

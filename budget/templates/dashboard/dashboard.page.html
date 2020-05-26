@@ -4,14 +4,16 @@
 {% load get_obj_attr %}
 {% load humanize %}
 {% block content %}
+<dashboard-container>
     <h1>Dashboard</h1>
-    {% include "dashboard/money_bar.html" %}
+    {% include "dashboard/components/money_bar/money_bar.component.html" %}
     <div class="row">
         <div class="col-md-5 col-sm-12 mb-3 mb-md-0 px-3 pr-md-3">
-            {% include "dashboard/check_in.html" %}
+            {% include "dashboard/components/check_in/check_in.component.html" %}
         </div>
         <div class="col-md-7 col-sm-12 px-3 pl-md-0">
-            {% include "dashboard/chart.html" %}
+            {% include "dashboard/components/chart/chart.component.html" %}
         </div>
     </div>
+</dashboard-container>
 {% endblock %}

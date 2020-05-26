@@ -1,0 +1,66 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load sekizai_tags %}
+
+{% block content %}
+<chart-container>
+{% addtoblock 'js' %}
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="module" src="{% static 'js/dashboard/components/chart/chart.js' %}"></script>
+    <script type="module">
+        import { ChartClient } from "{% static 'js/dashboard/components/chart/chart.js' %}";
+        $( document ).ready(function() {
+            const datas = [
+                {
+                    title: '{{income_debt_ratio_chart.title}}',
+                    data: {{income_debt_ratio_chart.data|safe}}
+                },
+                {
+                    title: '{{debt_ratio_chart.title}}',
+                    data: {{debt_ratio_chart.data|safe}}
+                }
+            ]
+            window.chartClient = new ChartClient(datas);
+            window.chartClient.loadChart();
+        });
+    </script>
+{% endaddtoblock %}
+{% addtoblock 'css' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'compiled/css/dashboard/components/chart/chart.component.css' %}"></link>
+{% endaddtoblock %}
+<div class="card p-3 h-100 bg-dark shadowed">
+    <h4 class="card-title text-light">Charts</h4>
+    <h5 class="card-subtitle mb-3 text-light">Visualizing the budget</h5>
+    <div
+        id="carouselExampleControls"
+        class="carousel slide carousel-fade"
+        data-ride="carousel"
+        data-interval="false"
+        >
+        <ol class="carousel-indicators">
+            <li onClick="window.chartClient.selectSlide(event)" id="list0" data-target="#carouselExampleControls" data-slide-to="0" class="active"></li>
+            <li onClick="window.chartClient.selectSlide(event)" id="list1" data-target="#carouselExampleControls" data-slide-to="1"></li>
+        </ol>
+
+        <div class="carousel-inner">
+            <div class="carousel-item active text-center" id="chartParent">
+                <div id="chart" class="chart"></div>
+            </div>
+        </div>
+        <a class="carousel-control-prev"
+            href="#carouselExampleControls"
+            role="button"
+            data-slide="prev"
+            onclick="window.chartClient.switchSlides(-1)"
+            >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a onclick="window.chartClient.switchSlides(1)" class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+    </div>
+</chart-container>
+{% endblock %}

@@ -21,7 +21,7 @@ function getCookie(name) {
 }
 
 function getEndPoint() {
-    return document.URL.split('/').slice(-1)[0]
+    return document.URL.split("/").slice(-1)[0].replace(/\W/g, "");
 }
 
 function enableToolTips() {

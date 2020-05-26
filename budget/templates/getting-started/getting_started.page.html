@@ -1,0 +1,21 @@
+{% extends 'common/base.page.html' %}
+{% load sekizai_tags %}
+{% load static %}
+
+{% block content %}
+
+<getting_started>
+{% addtoblock 'css' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'compiled/css/getting-started/getting_started.page.css' %}"></link>
+{% endaddtoblock %}
+{% addtoblock 'js' %}
+    <script type="module" src="{% static 'js/getting-started/getting_started.js' %}"></script>
+{% endaddtoblock %}
+    <div class="d-flex flex-column align-items-center mb-3">
+        <h1>Getting Started:</h1>
+        <h3>{{ title }}</h3>
+    </div>
+    {% include "getting-started/components/desktop-table/desktop-table.component.html" %}
+    {% include "getting-started/components/navigators/navigators.component.html" %}
+</getting_started>
+{% endblock %}
