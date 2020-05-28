@@ -4,48 +4,85 @@
 
 {% block content %}
 <settings-landing-page>
-{% addtoblock 'css' %}
-    <link rel="stylesheet" type="text/css" href="{% static 'compiled/css/getting-started/landing.page.css' %}"></link>
-{% endaddtoblock %}
-<h1>Account Settings</h1>
-<p>Select One:</p>
-<div class="container">
-    <div class="row d-flex justify-content-center align-items-center">
-        <div class="col-6 config-card p-1">
-            <form method="GET" action="/gettingstarted/income" class="w-100 h-100">
-                <button type="submit" class="btn btn-primary w-100 h-100 button-borders">
-                    <i class="fas fa-money-check-alt icon mb-3"></i>
-                    <h3>Income</h3>
-                </button>
-            </form>
+    {% addtoblock 'css' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'compiled/css/getting-started/landing.page.css' %}"/>
+    {% endaddtoblock %}
+    <h1>Account Settings</h1>
+    <p>Select One:</p>
+    <div class="container">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-6 config-card p-1">
+                <form method="GET" action="/gettingstarted/accounts" class="w-100 h-100">
+                    <button type="submit" class="btn btn-primary w-100 h-100 button-borders">
+                        <i class="fas fa-university icon mb-3"></i>
+                        <h3>Debit Accounts</h3>
+                    </button>
+                </form>
+            </div>
+            <div class="col-6 config-card p-1">
+                <form method="GET" action="#" class="w-100 h-100">
+                    <button type="submit" disabled class="btn btn-primary w-100 h-100 button-borders disabled">
+                        <i class="fas fa-credit-card icon mb-3"></i>
+                        <h3>Credit Accounts</h3>
+                    </button>
+                </form>
+
+            </div>
         </div>
-        <div class="col-6 config-card p-1">
-            <form method="GET" action="/gettingstarted/bills" class="w-100 h-100">
-                <button type="submit" class="btn btn-primary w-100 h-100 button-borders">
-                    <i class="fas fa-file-invoice-dollar icon mb-3"></i>
-                    <h3>Bills</h3>
-                </button>
-            </form>
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-6 config-card p-1">
+                <form method="GET" action="/gettingstarted/income" class="w-100 h-100">
+                    <button type="submit" class="btn btn-primary w-100 h-100 button-borders">
+                        <i class="fas fa-money-check-alt icon mb-3"></i>
+                        <h3>Income</h3>
+                    </button>
+                </form>
+            </div>
+            <div class="col-6 config-card p-1">
+                <form method="GET" action="/gettingstarted/bills" class="w-100 h-100">
+                    <button type="submit" class="btn btn-primary w-100 h-100 button-borders">
+                        <i class="fas fa-file-invoice-dollar icon mb-3"></i>
+                        <h3>Bills</h3>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-6 config-card p-1">
+                <form method="GET" action="#" class="w-100 h-100">
+                    <button type="submit" disabled class="btn btn-primary w-100 h-100 button-borders disabled">
+                        <i class="fas fa-project-diagram icon mb-3"></i>
+                        <h3>Associate</h3>
+                    </button>
+                </form>
+            </div>
+            <div class="col-6 config-card p-1">
+                <form method="GET" action="#" class="w-100 h-100">
+                    <button type="submit" disabled class="btn btn-primary w-100 h-100 button-borders disabled">
+                        <i class="fas fa-clipboard icon mb-3"></i>
+                        <h3>Plan</h3>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-6 config-card p-1">
+                <form method="GET" action="#" class="w-100 h-100">
+                    <button type="submit" disabled class="btn btn-primary w-100 h-100 button-borders disabled">
+                        <i class="fas fa-user-edit icon mb-3"></i>
+                        <h3>My Profile</h3>
+                    </button>
+                </form>
+            </div>
+            <div class="col-6 config-card p-1">
+                {% comment %} <form method="GET" action="#" class="w-100 h-100">
+                    <button type="submit" disabled class="btn btn-primary w-100 h-100 button-borders disabled">
+                        <i class="fas fa-user-edit icon mb-3"></i>
+                        <h3>My Profile</h3>
+                    </button>
+                </form> {% endcomment %}
+            </div>
         </div>
     </div>
-    <div class="row d-flex justify-content-center align-items-center">
-        <div class="col-6 config-card p-1">
-            <form method="GET" action="/gettingstarted/accounts" class="w-100 h-100">
-                <button type="submit" class="btn btn-primary w-100 h-100 button-borders">
-                    <i class="fas fa-university icon mb-3"></i>
-                    <h3>Accounts</h3>
-                </button>
-            </form>
-        </div>
-        <div class="col-6 config-card p-1">
-            <form method="GET" action="#" class="w-100 h-100">
-                <button type="submit" disabled class="btn btn-primary w-100 h-100 button-borders disabled">
-                    <i class="fas fa-user-edit icon mb-3"></i>
-                    <h3>My Profile</h3>
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
 </settings-landing-page>
 {% endblock %}
