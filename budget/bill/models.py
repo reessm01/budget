@@ -29,7 +29,7 @@ class Bill(models.Model):
         return delta.days
 
     def next_due(self, _date=None):
-        if _date == None:
+        if _date is None:
             next_due = self.last_paid + timedelta(days=self.days_between())
         else:
             next_due = _date + timedelta(days=self.days_between())
