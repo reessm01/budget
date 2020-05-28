@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'mathfilters',
     'fontawesome_5',
-    'django_components',
     'sekizai'
 ]
 
@@ -79,7 +78,6 @@ TEMPLATES = [
                 'sekizai.context_processors.sekizai'
             ],
             'builtins': [
-                # 'django_components.templatetags.component_tags',
             ]
         },
     },
