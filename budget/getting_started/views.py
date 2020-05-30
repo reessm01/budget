@@ -78,18 +78,17 @@ class InitCheckinPreferences(TemplateView):
         page = 'getting-started/components/archive/init_check_preferences.component.html'
         form = CheckInPreferencesForm(client=user.client)
 
-        if True:
-            return render(request, page, {
-                'title': 'Check-in Configuration',
-                'user': user,
-                'form': form,
-                'guidance': 'Please indicate the frequency you would like to check in. Check ins are automated events that runs a comparison between your projected account and actual account balances.',
-                'button_label': 'Submit',
-                'next_destination': '/dashboard',
-                'previous_destination': '/gettingstarted/accounts'
-            })
-        else:
-            return HttpResponseRedirect(reverse('index'))
+        return render(request, page, {
+            'title': 'Check-in Configuration',
+            'user': user,
+            'form': form,
+            'guidance': 'Please indicate the frequency you would like to check in. Check ins are automated events that runs a comparison between your projected account and actual account balances.',
+            'button_label': 'Submit',
+            'next_destination': '/dashboard',
+            'previous_destination': '/gettingstarted/accounts'
+        })
+        # else:
+        #     return HttpResponseRedirect(reverse('index'))
 
     def get_time_delta(self, preferences, last_paid):
         if preferences.frequency.title == 'monthly':
@@ -315,33 +314,33 @@ class GettingStarted(TemplateView):
 
         if user:
             client = Client.objects.get(user=user)
-            if client.started:
-                form = self.get_form(end_point)
-                entries = self.get_entries(end_point, client)
-                title = end_point.title()
-                button_label = 'Next'
-                next_destination = self.get_next_destination(end_point)
-                previous_destination = self.get_prev_destination(end_point)
+            # if client.started:
+            form = self.get_form(end_point)
+            entries = self.get_entries(end_point, client)
+            title = end_point.title()
+            button_label = 'Next'
+            next_destination = self.get_next_destination(end_point)
+            previous_destination = self.get_prev_destination(end_point)
 
-                forms = []
-                for entry in entries:
-                    init_data = self.get_model(
-                        end_point, entry.pk, user.client)
-                    forms.append(self.get_a_form(
-                        end_point, init_data.values()[0]))
-                return render(request, self.page, {
-                    'title': title,
-                    'user': user,
-                    'form': form,
-                    'entries': entries,
-                    'forms': forms,
-                    'button_label': button_label,
-                    'end_point': end_point.title(),
-                    'next_destination': next_destination,
-                    'previous_destination': previous_destination
-                })
-            else:
-                return HttpResponseRedirect(reverse('index'))
+            forms = []
+            for entry in entries:
+                init_data = self.get_model(
+                    end_point, entry.pk, user.client)
+                forms.append(self.get_a_form(
+                    end_point, init_data.values()[0]))
+            return render(request, self.page, {
+                'title': title,
+                'user': user,
+                'form': form,
+                'entries': entries,
+                'forms': forms,
+                'button_label': button_label,
+                'end_point': end_point.title(),
+                'next_destination': next_destination,
+                'previous_destination': previous_destination
+            })
+            # else:
+            #     return HttpResponseRedirect(reverse('index'))
         else:
             return HttpResponseRedirect(reverse('login'))
 
